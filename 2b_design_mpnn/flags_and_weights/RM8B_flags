@@ -1,0 +1,927 @@
+-chemical:set_atomic_charge fa_standard:ALA:C:0.68954
+-chemical:set_atomic_charge fa_standard:ALA:O:-0.68954
+-chemical:set_atomic_charge fa_standard:ASN:C:0.68954
+-chemical:set_atomic_charge fa_standard:ASN:O:-0.68954
+-chemical:set_atomic_charge fa_standard:ASP:C:0.68954
+-chemical:set_atomic_charge fa_standard:ASP:O:-0.68954
+-chemical:set_atomic_charge fa_standard:ARG:C:0.68954
+-chemical:set_atomic_charge fa_standard:ARG:O:-0.68954
+-chemical:set_atomic_charge fa_standard:GLY:C:0.68954
+-chemical:set_atomic_charge fa_standard:GLY:O:-0.68954
+-chemical:set_atomic_charge fa_standard:CYS:C:0.68954
+-chemical:set_atomic_charge fa_standard:CYS:O:-0.68954
+-chemical:set_atomic_charge fa_standard:CYD:C:0.68954
+-chemical:set_atomic_charge fa_standard:CYD:O:-0.68954
+-chemical:set_atomic_charge fa_standard:ILE:C:0.68954
+-chemical:set_atomic_charge fa_standard:ILE:O:-0.68954
+-chemical:set_atomic_charge fa_standard:GLN:C:0.68954
+-chemical:set_atomic_charge fa_standard:GLN:O:-0.68954
+-chemical:set_atomic_charge fa_standard:GLU:C:0.68954
+-chemical:set_atomic_charge fa_standard:GLU:O:-0.68954
+-chemical:set_atomic_charge fa_standard:HIS:C:0.68954
+-chemical:set_atomic_charge fa_standard:HIS:O:-0.68954
+-chemical:set_atomic_charge fa_standard:HIS_D:C:0.68954
+-chemical:set_atomic_charge fa_standard:HIS_D:O:-0.68954
+-chemical:set_atomic_charge fa_standard:LEU:C:0.68954
+-chemical:set_atomic_charge fa_standard:LEU:O:-0.68954
+-chemical:set_atomic_charge fa_standard:MET:C:0.68954
+-chemical:set_atomic_charge fa_standard:MET:O:-0.68954
+-chemical:set_atomic_charge fa_standard:PHE:C:0.68954
+-chemical:set_atomic_charge fa_standard:PHE:O:-0.68954
+-chemical:set_atomic_charge fa_standard:PRO:C:0.68954
+-chemical:set_atomic_charge fa_standard:PRO:O:-0.68954
+-chemical:set_atomic_charge fa_standard:TYR:C:0.68954
+-chemical:set_atomic_charge fa_standard:TYR:O:-0.68954
+-chemical:set_atomic_charge fa_standard:TRP:C:0.68954
+-chemical:set_atomic_charge fa_standard:TRP:O:-0.68954
+-chemical:set_atomic_charge fa_standard:VAL:C:0.68954
+-chemical:set_atomic_charge fa_standard:VAL:O:-0.68954
+-chemical:set_atomic_charge fa_standard:LYS:C:0.68954
+-chemical:set_atomic_charge fa_standard:LYS:O:-0.68954
+-chemical:set_atomic_charge fa_standard:SER:C:0.68954
+-chemical:set_atomic_charge fa_standard:SER:O:-0.68954
+-chemical:set_atomic_charge fa_standard:THR:C:0.68954
+-chemical:set_atomic_charge fa_standard:THR:O:-0.68954
+-chemical:set_atomic_charge fa_standard:ALA:N:-0.68379
+-chemical:set_atomic_charge fa_standard:ALA:CA:0.10184
+-chemical:set_atomic_charge fa_standard:ALA:H:0.45101
+-chemical:set_atomic_charge fa_standard:ALA:HA:0.13094
+-chemical:set_atomic_charge fa_standard:ASN:N:-0.68379
+-chemical:set_atomic_charge fa_standard:ASN:CA:0.10184
+-chemical:set_atomic_charge fa_standard:ASN:H:0.45101
+-chemical:set_atomic_charge fa_standard:ASN:HA:0.13094
+-chemical:set_atomic_charge fa_standard:ASP:N:-0.68379
+-chemical:set_atomic_charge fa_standard:ASP:CA:0.10184
+-chemical:set_atomic_charge fa_standard:ASP:H:0.45101
+-chemical:set_atomic_charge fa_standard:ASP:HA:0.13094
+-chemical:set_atomic_charge fa_standard:ARG:N:-0.68379
+-chemical:set_atomic_charge fa_standard:ARG:CA:0.10184
+-chemical:set_atomic_charge fa_standard:ARG:H:0.45101
+-chemical:set_atomic_charge fa_standard:ARG:HA:0.13094
+-chemical:set_atomic_charge fa_standard:GLY:N:-0.68379
+-chemical:set_atomic_charge fa_standard:GLY:CA:-0.02910
+-chemical:set_atomic_charge fa_standard:GLY:H:0.45101
+-chemical:set_atomic_charge fa_standard:GLY:1HA:0.13094
+-chemical:set_atomic_charge fa_standard:GLY:2HA:0.13094
+-chemical:set_atomic_charge fa_standard:CYS:N:-0.68379
+-chemical:set_atomic_charge fa_standard:CYS:CA:0.10184
+-chemical:set_atomic_charge fa_standard:CYS:H:0.45101
+-chemical:set_atomic_charge fa_standard:CYS:HA:0.13094
+-chemical:set_atomic_charge fa_standard:CYD:N:-0.68379
+-chemical:set_atomic_charge fa_standard:CYD:CA:0.10184
+-chemical:set_atomic_charge fa_standard:CYD:H:0.45101
+-chemical:set_atomic_charge fa_standard:CYD:HA:0.13094
+-chemical:set_atomic_charge fa_standard:ILE:N:-0.68379
+-chemical:set_atomic_charge fa_standard:ILE:CA:0.10184
+-chemical:set_atomic_charge fa_standard:ILE:H:0.45101
+-chemical:set_atomic_charge fa_standard:ILE:HA:0.13094
+-chemical:set_atomic_charge fa_standard:GLN:N:-0.68379
+-chemical:set_atomic_charge fa_standard:GLN:CA:0.10184
+-chemical:set_atomic_charge fa_standard:GLN:H:0.45101
+-chemical:set_atomic_charge fa_standard:GLN:HA:0.13094
+-chemical:set_atomic_charge fa_standard:GLU:N:-0.68379
+-chemical:set_atomic_charge fa_standard:GLU:CA:0.10184
+-chemical:set_atomic_charge fa_standard:GLU:H:0.45101
+-chemical:set_atomic_charge fa_standard:GLU:HA:0.13094
+-chemical:set_atomic_charge fa_standard:HIS:N:-0.68379
+-chemical:set_atomic_charge fa_standard:HIS:CA:0.10184
+-chemical:set_atomic_charge fa_standard:HIS:H:0.45101
+-chemical:set_atomic_charge fa_standard:HIS:HA:0.13094
+-chemical:set_atomic_charge fa_standard:HIS_D:N:-0.68379
+-chemical:set_atomic_charge fa_standard:HIS_D:CA:0.10184
+-chemical:set_atomic_charge fa_standard:HIS_D:H:0.45101
+-chemical:set_atomic_charge fa_standard:HIS_D:HA:0.13094
+-chemical:set_atomic_charge fa_standard:LEU:N:-0.68379
+-chemical:set_atomic_charge fa_standard:LEU:CA:0.10184
+-chemical:set_atomic_charge fa_standard:LEU:H:0.45101
+-chemical:set_atomic_charge fa_standard:LEU:HA:0.13094
+-chemical:set_atomic_charge fa_standard:MET:N:-0.68379
+-chemical:set_atomic_charge fa_standard:MET:CA:0.10184
+-chemical:set_atomic_charge fa_standard:MET:H:0.45101
+-chemical:set_atomic_charge fa_standard:MET:HA:0.13094
+-chemical:set_atomic_charge fa_standard:PHE:N:-0.68379
+-chemical:set_atomic_charge fa_standard:PHE:CA:0.10184
+-chemical:set_atomic_charge fa_standard:PHE:H:0.45101
+-chemical:set_atomic_charge fa_standard:PHE:HA:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:N:-0.42192
+-chemical:set_atomic_charge fa_standard:PRO:CA:0.02910
+-chemical:set_atomic_charge fa_standard:PRO:HA:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:CB:-0.26188
+-chemical:set_atomic_charge fa_standard:PRO:CG:-0.26188
+-chemical:set_atomic_charge fa_standard:PRO:1HD:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:2HD:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:1HG:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:2HG:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:1HB:0.13094
+-chemical:set_atomic_charge fa_standard:PRO:2HB:0.13094
+-chemical:set_atomic_charge fa_standard:TYR:N:-0.68379
+-chemical:set_atomic_charge fa_standard:TYR:CA:0.10184
+-chemical:set_atomic_charge fa_standard:TYR:H:0.45101
+-chemical:set_atomic_charge fa_standard:TYR:HA:0.13094
+-chemical:set_atomic_charge fa_standard:TRP:N:-0.68379
+-chemical:set_atomic_charge fa_standard:TRP:CA:0.10184
+-chemical:set_atomic_charge fa_standard:TRP:H:0.45101
+-chemical:set_atomic_charge fa_standard:TRP:HA:0.13094
+-chemical:set_atomic_charge fa_standard:VAL:N:-0.68379
+-chemical:set_atomic_charge fa_standard:VAL:CA:0.10184
+-chemical:set_atomic_charge fa_standard:VAL:H:0.45101
+-chemical:set_atomic_charge fa_standard:VAL:HA:0.13094
+-chemical:set_atomic_charge fa_standard:LYS:N:-0.68379
+-chemical:set_atomic_charge fa_standard:LYS:CA:0.10184
+-chemical:set_atomic_charge fa_standard:LYS:H:0.45101
+-chemical:set_atomic_charge fa_standard:LYS:HA:0.13094
+-chemical:set_atomic_charge fa_standard:SER:N:-0.68379
+-chemical:set_atomic_charge fa_standard:SER:CA:0.10184
+-chemical:set_atomic_charge fa_standard:SER:H:0.45101
+-chemical:set_atomic_charge fa_standard:SER:HA:0.13094
+-chemical:set_atomic_charge fa_standard:THR:N:-0.68379
+-chemical:set_atomic_charge fa_standard:THR:CA:0.10184
+-chemical:set_atomic_charge fa_standard:THR:H:0.45101
+-chemical:set_atomic_charge fa_standard:THR:HA:0.13094
+-chemical:set_atomic_charge fa_standard:ALA:CB:-0.40033
+-chemical:set_atomic_charge fa_standard:ALA:1HB:0.13344
+-chemical:set_atomic_charge fa_standard:ALA:2HB:0.13344
+-chemical:set_atomic_charge fa_standard:ALA:3HB:0.13344
+-chemical:set_atomic_charge fa_standard:CYS:CB:-0.16310
+-chemical:set_atomic_charge fa_standard:CYS:SG:-0.34103
+-chemical:set_atomic_charge fa_standard:CYS:1HB:0.13344
+-chemical:set_atomic_charge fa_standard:CYS:2HB:0.13344
+-chemical:set_atomic_charge fa_standard:CYS:HG:0.23723
+-chemical:set_atomic_charge fa_standard:CYD:CB:-0.14828
+-chemical:set_atomic_charge fa_standard:CYD:SG:-0.11861
+-chemical:set_atomic_charge fa_standard:CYD:1HB:0.13344
+-chemical:set_atomic_charge fa_standard:CYD:2HB:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:CB:-0.13344
+-chemical:set_atomic_charge fa_standard:ILE:CG1:-0.26689
+-chemical:set_atomic_charge fa_standard:ILE:CG2:-0.40033
+-chemical:set_atomic_charge fa_standard:ILE:CD1:-0.40033
+-chemical:set_atomic_charge fa_standard:ILE:HB:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:1HG2:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:2HG2:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:3HG2:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:1HG1:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:2HG1:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:1HD1:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:2HD1:0.13344
+-chemical:set_atomic_charge fa_standard:ILE:3HD1:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:CB:-0.26689
+-chemical:set_atomic_charge fa_standard:LEU:CG:-0.13344
+-chemical:set_atomic_charge fa_standard:LEU:CD1:-0.40033
+-chemical:set_atomic_charge fa_standard:LEU:CD2:-0.40033
+-chemical:set_atomic_charge fa_standard:LEU:1HB:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:2HB:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:HG:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:1HD1:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:2HD1:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:3HD1:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:1HD2:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:2HD2:0.13344
+-chemical:set_atomic_charge fa_standard:LEU:3HD2:0.13344
+-chemical:set_atomic_charge fa_standard:MET:CB:-0.26689
+-chemical:set_atomic_charge fa_standard:MET:CG:-0.20759
+-chemical:set_atomic_charge fa_standard:MET:SD:-0.13344
+-chemical:set_atomic_charge fa_standard:MET:CE:-0.32620
+-chemical:set_atomic_charge fa_standard:MET:1HB:0.13344
+-chemical:set_atomic_charge fa_standard:MET:2HB:0.13344
+-chemical:set_atomic_charge fa_standard:MET:1HG:0.13344
+-chemical:set_atomic_charge fa_standard:MET:2HG:0.13344
+-chemical:set_atomic_charge fa_standard:MET:1HE:0.13344
+-chemical:set_atomic_charge fa_standard:MET:2HE:0.13344
+-chemical:set_atomic_charge fa_standard:MET:3HE:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:CB:-0.13344
+-chemical:set_atomic_charge fa_standard:VAL:CG1:-0.40033
+-chemical:set_atomic_charge fa_standard:VAL:CG2:-0.40033
+-chemical:set_atomic_charge fa_standard:VAL:HB:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:1HG1:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:2HG1:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:3HG1:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:1HG2:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:2HG2:0.13344
+-chemical:set_atomic_charge fa_standard:VAL:3HG2:0.13344
+-chemical:set_atomic_charge fa_standard:ASN:CB:-0.15967
+-chemical:set_atomic_charge fa_standard:ASN:CG:0.48789
+-chemical:set_atomic_charge fa_standard:ASN:OD1:-0.48789
+-chemical:set_atomic_charge fa_standard:ASN:ND2:-0.54997
+-chemical:set_atomic_charge fa_standard:ASN:1HD2:0.28386
+-chemical:set_atomic_charge fa_standard:ASN:2HD2:0.26611
+-chemical:set_atomic_charge fa_standard:ASN:1HB:0.07984
+-chemical:set_atomic_charge fa_standard:ASN:2HB:0.07984
+-chemical:set_atomic_charge fa_standard:ASP:CB:-0.27246
+-chemical:set_atomic_charge fa_standard:ASP:CG:0.56768
+-chemical:set_atomic_charge fa_standard:ASP:OD1:-0.72054
+-chemical:set_atomic_charge fa_standard:ASP:OD2:-0.72054
+-chemical:set_atomic_charge fa_standard:ASP:1HB:0.07293
+-chemical:set_atomic_charge fa_standard:ASP:2HB:0.07293
+-chemical:set_atomic_charge fa_standard:ARG:CB:-0.07878
+-chemical:set_atomic_charge fa_standard:ARG:CG:-0.07878
+-chemical:set_atomic_charge fa_standard:ARG:CD:0.13794
+-chemical:set_atomic_charge fa_standard:ARG:NE:-0.37536
+-chemical:set_atomic_charge fa_standard:ARG:CZ:0.38888
+-chemical:set_atomic_charge fa_standard:ARG:NH1:-0.43239
+-chemical:set_atomic_charge fa_standard:ARG:NH2:-0.43239
+-chemical:set_atomic_charge fa_standard:ARG:1HH1:0.28622
+-chemical:set_atomic_charge fa_standard:ARG:2HH1:0.28622
+-chemical:set_atomic_charge fa_standard:ARG:1HH2:0.28622
+-chemical:set_atomic_charge fa_standard:ARG:2HH2:0.28622
+-chemical:set_atomic_charge fa_standard:ARG:HE:0.27482
+-chemical:set_atomic_charge fa_standard:ARG:1HB:0.07519
+-chemical:set_atomic_charge fa_standard:ARG:2HB:0.07519
+-chemical:set_atomic_charge fa_standard:ARG:1HG:0.07519
+-chemical:set_atomic_charge fa_standard:ARG:2HG:0.07519
+-chemical:set_atomic_charge fa_standard:ARG:1HD:0.07519
+-chemical:set_atomic_charge fa_standard:ARG:2HD:0.07519
+-chemical:set_atomic_charge fa_standard:GLN:CB:-0.18573
+-chemical:set_atomic_charge fa_standard:GLN:CG:-0.18573
+-chemical:set_atomic_charge fa_standard:GLN:CD:0.56748
+-chemical:set_atomic_charge fa_standard:GLN:OE1:-0.56748
+-chemical:set_atomic_charge fa_standard:GLN:NE2:-0.63970
+-chemical:set_atomic_charge fa_standard:GLN:1HE2:0.33017
+-chemical:set_atomic_charge fa_standard:GLN:2HE2:0.30953
+-chemical:set_atomic_charge fa_standard:GLN:1HB:0.09286
+-chemical:set_atomic_charge fa_standard:GLN:2HB:0.09286
+-chemical:set_atomic_charge fa_standard:GLN:1HG:0.09286
+-chemical:set_atomic_charge fa_standard:GLN:2HG:0.09286
+-chemical:set_atomic_charge fa_standard:GLU:CB:-0.15842
+-chemical:set_atomic_charge fa_standard:GLU:CG:-0.22709
+-chemical:set_atomic_charge fa_standard:GLU:CD:0.39097
+-chemical:set_atomic_charge fa_standard:GLU:OE1:-0.55673
+-chemical:set_atomic_charge fa_standard:GLU:OE2:-0.55673
+-chemical:set_atomic_charge fa_standard:GLU:1HB:0.02701
+-chemical:set_atomic_charge fa_standard:GLU:2HB:0.02701
+-chemical:set_atomic_charge fa_standard:GLU:1HG:0.02701
+-chemical:set_atomic_charge fa_standard:GLU:2HG:0.02701
+-chemical:set_atomic_charge fa_standard:HIS:CB:-0.08213
+-chemical:set_atomic_charge fa_standard:HIS:CG:0.22585
+-chemical:set_atomic_charge fa_standard:HIS:ND1:-0.71863
+-chemical:set_atomic_charge fa_standard:HIS:CD2:-0.05133
+-chemical:set_atomic_charge fa_standard:HIS:CE1:0.25666
+-chemical:set_atomic_charge fa_standard:HIS:NE2:-0.36957
+-chemical:set_atomic_charge fa_standard:HIS:HE2:0.32851
+-chemical:set_atomic_charge fa_standard:HIS:1HB:0.09240
+-chemical:set_atomic_charge fa_standard:HIS:2HB:0.09240
+-chemical:set_atomic_charge fa_standard:HIS:HE1:0.13346
+-chemical:set_atomic_charge fa_standard:HIS:HD2:0.09240
+-chemical:set_atomic_charge fa_standard:HIS_D:CB:-0.09240
+-chemical:set_atomic_charge fa_standard:HIS_D:CG:-0.05133
+-chemical:set_atomic_charge fa_standard:HIS_D:ND1:-0.36957
+-chemical:set_atomic_charge fa_standard:HIS_D:CD2:0.22585
+-chemical:set_atomic_charge fa_standard:HIS_D:CE1:0.25666
+-chemical:set_atomic_charge fa_standard:HIS_D:NE2:-0.71863
+-chemical:set_atomic_charge fa_standard:HIS_D:HD1:0.32851
+-chemical:set_atomic_charge fa_standard:HIS_D:1HB:0.09240
+-chemical:set_atomic_charge fa_standard:HIS_D:2HB:0.09240
+-chemical:set_atomic_charge fa_standard:HIS_D:HE1:0.13346
+-chemical:set_atomic_charge fa_standard:HIS_D:HD2:0.10267
+-chemical:set_atomic_charge fa_standard:LYS:CB:-0.07807
+-chemical:set_atomic_charge fa_standard:LYS:CG:-0.07807
+-chemical:set_atomic_charge fa_standard:LYS:CD:-0.07807
+-chemical:set_atomic_charge fa_standard:LYS:CE:0.14800
+-chemical:set_atomic_charge fa_standard:LYS:NZ:-0.14764
+-chemical:set_atomic_charge fa_standard:LYS:1HZ:0.21757
+-chemical:set_atomic_charge fa_standard:LYS:2HZ:0.21757
+-chemical:set_atomic_charge fa_standard:LYS:3HZ:0.21757
+-chemical:set_atomic_charge fa_standard:LYS:1HB:0.07844
+-chemical:set_atomic_charge fa_standard:LYS:2HB:0.07844
+-chemical:set_atomic_charge fa_standard:LYS:1HG:0.07844
+-chemical:set_atomic_charge fa_standard:LYS:2HG:0.07844
+-chemical:set_atomic_charge fa_standard:LYS:1HD:0.07844
+-chemical:set_atomic_charge fa_standard:LYS:2HD:0.07844
+-chemical:set_atomic_charge fa_standard:LYS:1HE:0.05525
+-chemical:set_atomic_charge fa_standard:LYS:2HE:0.05525
+-chemical:set_atomic_charge fa_standard:SER:CB:0.04234
+-chemical:set_atomic_charge fa_standard:SER:OG:-0.55895
+-chemical:set_atomic_charge fa_standard:SER:HG:0.36417
+-chemical:set_atomic_charge fa_standard:SER:1HB:0.07622
+-chemical:set_atomic_charge fa_standard:SER:2HB:0.07622
+-chemical:set_atomic_charge fa_standard:THR:CB:0.14060
+-chemical:set_atomic_charge fa_standard:THR:OG1:-0.66284
+-chemical:set_atomic_charge fa_standard:THR:CG2:-0.27117
+-chemical:set_atomic_charge fa_standard:THR:HG1:0.43186
+-chemical:set_atomic_charge fa_standard:THR:HB:0.09039
+-chemical:set_atomic_charge fa_standard:THR:1HG2:0.09039
+-chemical:set_atomic_charge fa_standard:THR:2HG2:0.09039
+-chemical:set_atomic_charge fa_standard:THR:3HG2:0.09039
+-chemical:set_atomic_charge fa_standard:PHE:CB:-0.30336
+-chemical:set_atomic_charge fa_standard:PHE:CG:0.00000
+-chemical:set_atomic_charge fa_standard:PHE:CD1:-0.19381
+-chemical:set_atomic_charge fa_standard:PHE:CD2:-0.19381
+-chemical:set_atomic_charge fa_standard:PHE:CE1:-0.19381
+-chemical:set_atomic_charge fa_standard:PHE:CE2:-0.19381
+-chemical:set_atomic_charge fa_standard:PHE:CZ:-0.19381
+-chemical:set_atomic_charge fa_standard:PHE:HD1:0.19381
+-chemical:set_atomic_charge fa_standard:PHE:HE1:0.19381
+-chemical:set_atomic_charge fa_standard:PHE:HZ:0.19381
+-chemical:set_atomic_charge fa_standard:PHE:HE2:0.19381
+-chemical:set_atomic_charge fa_standard:PHE:HD2:0.19381
+-chemical:set_atomic_charge fa_standard:PHE:1HB:0.15167
+-chemical:set_atomic_charge fa_standard:PHE:2HB:0.15167
+-chemical:set_atomic_charge fa_standard:TRP:CB:-0.22819
+-chemical:set_atomic_charge fa_standard:TRP:CG:-0.03803
+-chemical:set_atomic_charge fa_standard:TRP:CD1:0.04437
+-chemical:set_atomic_charge fa_standard:TRP:CD2:-0.02536
+-chemical:set_atomic_charge fa_standard:TRP:NE1:-0.77327
+-chemical:set_atomic_charge fa_standard:TRP:CE2:0.16479
+-chemical:set_atomic_charge fa_standard:TRP:CE3:-0.14578
+-chemical:set_atomic_charge fa_standard:TRP:CZ2:-0.14578
+-chemical:set_atomic_charge fa_standard:TRP:CZ3:-0.14578
+-chemical:set_atomic_charge fa_standard:TRP:CH2:-0.14578
+-chemical:set_atomic_charge fa_standard:TRP:HE1:0.48171
+-chemical:set_atomic_charge fa_standard:TRP:HD1:0.14578
+-chemical:set_atomic_charge fa_standard:TRP:HZ2:0.14578
+-chemical:set_atomic_charge fa_standard:TRP:HH2:0.14578
+-chemical:set_atomic_charge fa_standard:TRP:HZ3:0.14578
+-chemical:set_atomic_charge fa_standard:TRP:HE3:0.14578
+-chemical:set_atomic_charge fa_standard:TRP:1HB:0.11409
+-chemical:set_atomic_charge fa_standard:TRP:2HB:0.11409
+-chemical:set_atomic_charge fa_standard:TYR:CB:-0.16923
+-chemical:set_atomic_charge fa_standard:TYR:CG:0.00000
+-chemical:set_atomic_charge fa_standard:TYR:CD1:-0.10811
+-chemical:set_atomic_charge fa_standard:TYR:CD2:-0.10811
+-chemical:set_atomic_charge fa_standard:TYR:CE1:-0.10811
+-chemical:set_atomic_charge fa_standard:TYR:CE2:-0.10811
+-chemical:set_atomic_charge fa_standard:TYR:CZ:0.10342
+-chemical:set_atomic_charge fa_standard:TYR:OH:-0.50768
+-chemical:set_atomic_charge fa_standard:TYR:HH:0.40426
+-chemical:set_atomic_charge fa_standard:TYR:HD1:0.10811
+-chemical:set_atomic_charge fa_standard:TYR:HE1:0.10811
+-chemical:set_atomic_charge fa_standard:TYR:HE2:0.10811
+-chemical:set_atomic_charge fa_standard:TYR:HD2:0.10811
+-chemical:set_atomic_charge fa_standard:TYR:1HB:0.08461
+-chemical:set_atomic_charge fa_standard:TYR:2HB:0.08461
+-chemical:set_patch_atomic_charge fa_standard:ALA:NtermProteinFull:N:-0.12568
+-chemical:set_patch_atomic_charge fa_standard:ALA:NtermProteinFull:CA:0.19381
+-chemical:set_patch_atomic_charge fa_standard:ALA:NtermProteinFull:1H:0.26898
+-chemical:set_patch_atomic_charge fa_standard:ALA:NtermProteinFull:2H:0.26898
+-chemical:set_patch_atomic_charge fa_standard:ALA:NtermProteinFull:3H:0.26898
+-chemical:set_patch_atomic_charge fa_standard:ALA:NtermProteinFull:HA:0.12490
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:N:-0.13458
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:CA:0.13481
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:1H:0.26010
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:2H:0.26010
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:3H:0.26010
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:1HA:0.10974
+-chemical:set_patch_atomic_charge fa_standard:GLY:NtermProteinFull:2HA:0.10974
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:N:-0.00741
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:CA:0.13668
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:1H:0.18680
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:2H:0.18680
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:HA:0.09283
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:CB:-0.07631
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:CG:-0.07631
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:1HD:0.09283
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:2HD:0.09283
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:1HG:0.09283
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:2HG:0.09283
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:1HB:0.09283
+-chemical:set_patch_atomic_charge fa_standard:PRO:NtermProteinFull:2HB:0.09283
+-chemical:set_patch_atomic_charge fa_standard:ALA:CtermProteinFull:C:0.34163
+-chemical:set_patch_atomic_charge fa_standard:ALA:CtermProteinFull:OXT:-0.67082
+-chemical:set_patch_atomic_charge fa_standard:ALA:CtermProteinFull:O:-0.67082
+-chemical:set_atomic_charge fa_standard:ADE:C1':0.16325
+-chemical:set_atomic_charge fa_standard:ADE:C4':0.16325
+-chemical:set_atomic_charge fa_standard:ADE:O4':-0.51019
+-chemical:set_atomic_charge fa_standard:ADE:H1':0.09183
+-chemical:set_atomic_charge fa_standard:ADE:H4':0.09183
+-chemical:set_atomic_charge fa_standard:GUA:C1':0.16325
+-chemical:set_atomic_charge fa_standard:GUA:C4':0.16325
+-chemical:set_atomic_charge fa_standard:GUA:O4':-0.51019
+-chemical:set_atomic_charge fa_standard:GUA:H1':0.09183
+-chemical:set_atomic_charge fa_standard:GUA:H4':0.09183
+-chemical:set_atomic_charge fa_standard:CYT:C1':0.16325
+-chemical:set_atomic_charge fa_standard:CYT:C4':0.16325
+-chemical:set_atomic_charge fa_standard:CYT:O4':-0.51019
+-chemical:set_atomic_charge fa_standard:CYT:H1':0.09183
+-chemical:set_atomic_charge fa_standard:CYT:H4':0.09183
+-chemical:set_atomic_charge fa_standard:THY:C1':0.16325
+-chemical:set_atomic_charge fa_standard:THY:C4':0.16325
+-chemical:set_atomic_charge fa_standard:THY:O4':-0.51019
+-chemical:set_atomic_charge fa_standard:THY:H1':0.09183
+-chemical:set_atomic_charge fa_standard:THY:H4':0.09183
+-chemical:set_atomic_charge fa_standard:ADE:C2':-0.18912
+-chemical:set_atomic_charge fa_standard:ADE:H2':0.09455
+-chemical:set_atomic_charge fa_standard:ADE:H2'':0.09455
+-chemical:set_atomic_charge fa_standard:GUA:C2':-0.18912
+-chemical:set_atomic_charge fa_standard:GUA:H2':0.09455
+-chemical:set_atomic_charge fa_standard:GUA:H2'':0.09455
+-chemical:set_atomic_charge fa_standard:CYT:C2':-0.18912
+-chemical:set_atomic_charge fa_standard:CYT:H2':0.09455
+-chemical:set_atomic_charge fa_standard:CYT:H2'':0.09455
+-chemical:set_atomic_charge fa_standard:THY:C2':-0.18912
+-chemical:set_atomic_charge fa_standard:THY:H2':0.09455
+-chemical:set_atomic_charge fa_standard:THY:H2'':0.09455
+-chemical:set_atomic_charge fa_standard:ADE:P:1.49986
+-chemical:set_atomic_charge fa_standard:ADE:OP1:-0.76837
+-chemical:set_atomic_charge fa_standard:ADE:OP2:-0.76837
+-chemical:set_atomic_charge fa_standard:ADE:O5':-0.55946
+-chemical:set_atomic_charge fa_standard:ADE:C5':-0.08060
+-chemical:set_atomic_charge fa_standard:ADE:H5':0.07262
+-chemical:set_atomic_charge fa_standard:ADE:H5'':0.07262
+-chemical:set_atomic_charge fa_standard:ADE:O3':-0.55946
+-chemical:set_atomic_charge fa_standard:ADE:C3':0.00052
+-chemical:set_atomic_charge fa_standard:ADE:H3':0.07262
+-chemical:set_atomic_charge fa_standard:GUA:P:1.49986
+-chemical:set_atomic_charge fa_standard:GUA:OP1:-0.76837
+-chemical:set_atomic_charge fa_standard:GUA:OP2:-0.76837
+-chemical:set_atomic_charge fa_standard:GUA:O5':-0.55946
+-chemical:set_atomic_charge fa_standard:GUA:C5':-0.08060
+-chemical:set_atomic_charge fa_standard:GUA:H5':0.07262
+-chemical:set_atomic_charge fa_standard:GUA:H5'':0.07262
+-chemical:set_atomic_charge fa_standard:GUA:O3':-0.55946
+-chemical:set_atomic_charge fa_standard:GUA:C3':0.00052
+-chemical:set_atomic_charge fa_standard:GUA:H3':0.07262
+-chemical:set_atomic_charge fa_standard:CYT:P:1.49986
+-chemical:set_atomic_charge fa_standard:CYT:OP1:-0.76837
+-chemical:set_atomic_charge fa_standard:CYT:OP2:-0.76837
+-chemical:set_atomic_charge fa_standard:CYT:O5':-0.55946
+-chemical:set_atomic_charge fa_standard:CYT:C5':-0.08060
+-chemical:set_atomic_charge fa_standard:CYT:H5':0.07262
+-chemical:set_atomic_charge fa_standard:CYT:H5'':0.07262
+-chemical:set_atomic_charge fa_standard:CYT:O3':-0.55946
+-chemical:set_atomic_charge fa_standard:CYT:C3':0.00052
+-chemical:set_atomic_charge fa_standard:CYT:H3':0.07262
+-chemical:set_atomic_charge fa_standard:THY:P:1.49986
+-chemical:set_atomic_charge fa_standard:THY:OP1:-0.76837
+-chemical:set_atomic_charge fa_standard:THY:OP2:-0.76837
+-chemical:set_atomic_charge fa_standard:THY:O5':-0.55946
+-chemical:set_atomic_charge fa_standard:THY:C5':-0.08060
+-chemical:set_atomic_charge fa_standard:THY:H5':0.07262
+-chemical:set_atomic_charge fa_standard:THY:H5'':0.07262
+-chemical:set_atomic_charge fa_standard:THY:O3':-0.55946
+-chemical:set_atomic_charge fa_standard:THY:C3':0.00052
+-chemical:set_atomic_charge fa_standard:THY:H3':0.07262
+-chemical:set_atomic_charge fa_standard:ADE:N1:-1.13422
+-chemical:set_atomic_charge fa_standard:ADE:C2:0.76637
+-chemical:set_atomic_charge fa_standard:ADE:N3:-1.14954
+-chemical:set_atomic_charge fa_standard:ADE:C4:0.65908
+-chemical:set_atomic_charge fa_standard:ADE:C5:0.42916
+-chemical:set_atomic_charge fa_standard:ADE:C6:0.70506
+-chemical:set_atomic_charge fa_standard:ADE:N7:-1.08824
+-chemical:set_atomic_charge fa_standard:ADE:C8:0.52112
+-chemical:set_atomic_charge fa_standard:ADE:N9:-0.07664
+-chemical:set_atomic_charge fa_standard:ADE:N6:-1.18020
+-chemical:set_atomic_charge fa_standard:ADE:H2:0.19925
+-chemical:set_atomic_charge fa_standard:ADE:H8:0.18393
+-chemical:set_atomic_charge fa_standard:ADE:H61:0.58244
+-chemical:set_atomic_charge fa_standard:ADE:H62:0.58244
+-chemical:set_atomic_charge fa_standard:GUA:N1:-0.40078
+-chemical:set_atomic_charge fa_standard:GUA:C2:0.88407
+-chemical:set_atomic_charge fa_standard:GUA:N3:-0.87228
+-chemical:set_atomic_charge fa_standard:GUA:C4:0.30648
+-chemical:set_atomic_charge fa_standard:GUA:C5:0.00000
+-chemical:set_atomic_charge fa_standard:GUA:C6:0.63652
+-chemical:set_atomic_charge fa_standard:GUA:N7:-0.70726
+-chemical:set_atomic_charge fa_standard:GUA:C8:0.29469
+-chemical:set_atomic_charge fa_standard:GUA:N9:-0.02357
+-chemical:set_atomic_charge fa_standard:GUA:N2:-0.80155
+-chemical:set_atomic_charge fa_standard:GUA:O6:-0.60117
+-chemical:set_atomic_charge fa_standard:GUA:H1:0.30648
+-chemical:set_atomic_charge fa_standard:GUA:H21:0.41257
+-chemical:set_atomic_charge fa_standard:GUA:H22:0.37720
+-chemical:set_atomic_charge fa_standard:GUA:H8:0.18860
+-chemical:set_atomic_charge fa_standard:CYT:N1:-0.13762
+-chemical:set_atomic_charge fa_standard:CYT:C2:0.55051
+-chemical:set_atomic_charge fa_standard:CYT:O2:-0.51875
+-chemical:set_atomic_charge fa_standard:CYT:N3:-0.69872
+-chemical:set_atomic_charge fa_standard:CYT:C4:0.68814
+-chemical:set_atomic_charge fa_standard:CYT:N4:-0.79401
+-chemical:set_atomic_charge fa_standard:CYT:C5:-0.13762
+-chemical:set_atomic_charge fa_standard:CYT:C6:0.05293
+-chemical:set_atomic_charge fa_standard:CYT:H41:0.34936
+-chemical:set_atomic_charge fa_standard:CYT:H42:0.39171
+-chemical:set_atomic_charge fa_standard:CYT:H5:0.07410
+-chemical:set_atomic_charge fa_standard:CYT:H6:0.17997
+-chemical:set_atomic_charge fa_standard:THY:N1:-0.38216
+-chemical:set_atomic_charge fa_standard:THY:C2:0.57322
+-chemical:set_atomic_charge fa_standard:THY:O2:-0.46083
+-chemical:set_atomic_charge fa_standard:THY:N3:-0.51703
+-chemical:set_atomic_charge fa_standard:THY:C4:0.56198
+-chemical:set_atomic_charge fa_standard:THY:O4:-0.50579
+-chemical:set_atomic_charge fa_standard:THY:C5:-0.16860
+-chemical:set_atomic_charge fa_standard:THY:C6:0.19108
+-chemical:set_atomic_charge fa_standard:THY:C7:-0.12363
+-chemical:set_atomic_charge fa_standard:THY:H3:0.40463
+-chemical:set_atomic_charge fa_standard:THY:H6:0.19108
+-chemical:set_atomic_charge fa_standard:THY:H71:0.07867
+-chemical:set_atomic_charge fa_standard:THY:H72:0.07867
+-chemical:set_atomic_charge fa_standard:THY:H73:0.07867
+-chemical:set_atom_properties fa_standard:Nhis:LK_DGFREE:-6.01726
+-chemical:set_atom_properties fa_standard:Ntrp:LK_DGFREE:-11.84212
+-chemical:set_atom_properties fa_standard:NH2O:LK_DGFREE:-7.66239
+-chemical:set_atom_properties fa_standard:Npro:LK_DGFREE:7.14865
+-chemical:set_atom_properties fa_standard:OBdd:LK_DGFREE:-5.75659
+-score::set_weights lk_ball 0.9999
+-score::set_weights lk_ball_iso -0.7995
+-score::set_weights lk_ball_bridge_uncpl -0.6699
+-score::set_weights dna_dihedral_bb 0.7477
+-score::set_weights dna_dihedral_chi 1.0604
+-score::set_weights dna_dihedral_sugar 0.1356
+-score::hb_don_strength hbdon_GENERIC_SC:1.110
+-score::hb_acc_strength hbacc_PCA_DNA:1.005
+-score::hb_acc_strength hbacc_PES_DNA:1.050
+-score::hb_acc_strength hbacc_RRI_DNA:1.442
+-score::hb_acc_strength hbacc_GENERIC_SP2SC:1.692
+-score::hb_acc_strength hbacc_GENERIC_SP3SC:1.354
+-score::hb_acc_strength hbacc_GENERIC_RINGSC:1.170
+-score::ref_offsets ALA -0.6351
+-score::ref_offsets CYS 0.4664
+-score::ref_offsets ASP 0.9558
+-score::ref_offsets GLU 0.8538
+-score::ref_offsets PHE 0.3386
+-score::ref_offsets GLY -1.5788
+-score::ref_offsets HIS -0.0893
+-score::ref_offsets ILE -0.0492
+-score::ref_offsets LYS 0.0100
+-score::ref_offsets LEU 1.1925
+-score::ref_offsets MET 0.3763
+-score::ref_offsets ASN -0.3697
+-score::ref_offsets PRO -0.4833
+-score::ref_offsets GLN 0.3417
+-score::ref_offsets ARG 0.2228
+-score::ref_offsets SER 0.0207
+-score::ref_offsets THR -0.2171
+-score::ref_offsets VAL -0.2373
+-score::ref_offsets TRP 0.0958
+-score::ref_offsets TYR -0.1139
+# density matching
+-mapreso 2
+-grid_spacing 0.8
+-atom_mask 2
+-sliding_window 1
+-unmask_bb
+
+## newdna
+-chemical::clone_atom_types fa_standard:Phos:Pdna
+-chemical::clone_atom_types fa_standard:OCbb:OBdd
+-chemical::reassign_atom_types fa_standard:ADE:N9:Npro
+-chemical::reassign_atom_types fa_standard:GUA:N9:Npro
+-chemical::reassign_atom_types fa_standard:THY:N1:Npro
+-chemical::reassign_atom_types fa_standard:CYT:N1:Npro
+-chemical::reassign_atom_types fa_standard:ADE:P:Pdna
+-chemical::reassign_atom_types fa_standard:GUA:P:Pdna
+-chemical::reassign_atom_types fa_standard:THY:P:Pdna
+-chemical::reassign_atom_types fa_standard:CYT:P:Pdna
+-chemical::reassign_atom_types fa_standard:GUA:O6:OBdd
+-chemical::reassign_atom_types fa_standard:CYT:O2:OBdd
+-chemical::reassign_atom_types fa_standard:THY:O2:OBdd
+-chemical::reassign_atom_types fa_standard:THY:O4:OBdd
+-chemical::reassign_icoor "fa_standard:ADE:H2'':120.0,68.0,1.1,C2',C1',C3' "
+-chemical::reassign_icoor "fa_standard:ADE:H2':120.0,68.0,1.1,C2',C1',H2'' "
+-chemical::reassign_icoor "fa_standard:ADE:UPPER:-180.0,60.2,1.608,O3',C3',C4' "
+-chemical::reassign_icoor "fa_standard:ADE:LOWER:-64.0,76.3,1.608,P,O5',C5' "
+-chemical::reassign_icoor "fa_standard:GUA:H2'':120.0,68.0,1.1,C2',C1',C3' "
+-chemical::reassign_icoor "fa_standard:GUA:H2':120.0,68.0,1.1,C2',C1',H2'' "
+-chemical::reassign_icoor "fa_standard:GUA:UPPER:-180.0,60.2,1.608,O3',C3',C4' "
+-chemical::reassign_icoor "fa_standard:GUA:LOWER:-64.0,76.3,1.608,P,O5',C5' "
+-chemical::reassign_icoor "fa_standard:THY:H2'':120.0,68.0,1.1,C2',C1',C3' "
+-chemical::reassign_icoor "fa_standard:THY:H2':120.0,68.0,1.1,C2',C1',H2'' "
+-chemical::reassign_icoor "fa_standard:THY:UPPER:-180.0,60.2,1.608,O3',C3',C4' "
+-chemical::reassign_icoor "fa_standard:THY:LOWER:-64.0,76.3,1.608,P,O5',C5' "
+-chemical::reassign_icoor "fa_standard:CYT:H2'':120.0,68.0,1.1,C2',C1',C3' "
+-chemical::reassign_icoor "fa_standard:CYT:H2':120.0,68.0,1.1,C2',C1',H2'' "
+-chemical::reassign_icoor "fa_standard:CYT:UPPER:-180.0,60.2,1.608,O3',C3',C4' "
+-chemical::reassign_icoor "fa_standard:CYT:LOWER:-64.0,76.3,1.608,P,O5',C5' "
+
+## more new dna (added by Ryan 2022.03.25)
+-chemical::clone_atom_types fa_standard:Nhis:Ndba # Nitrogen DNA base acceptor
+-chemical::clone_atom_types fa_standard:Ntrp:Ndbd # Nitrogen DNA base donor
+-chemical::clone_atom_types fa_standard:NH2O:Ndbn # Nitrogen DNA base amine
+-chemical::clone_atom_types fa_standard:CObb:CBdd # Carbonyl Base dna dna
+-chemical::reassign_atom_types fa_standard:ADE:N1:Ndba
+-chemical::reassign_atom_types fa_standard:ADE:N3:Ndba
+-chemical::reassign_atom_types fa_standard:ADE:N7:Ndba
+-chemical::reassign_atom_types fa_standard:CYT:N3:Ndba
+-chemical::reassign_atom_types fa_standard:GUA:N3:Ndba
+-chemical::reassign_atom_types fa_standard:GUA:N7:Ndba
+-chemical::reassign_atom_types fa_standard:GUA:N1:Ndbd
+-chemical::reassign_atom_types fa_standard:THY:N3:Ndbd
+-chemical::reassign_atom_types fa_standard:ADE:N6:Ndbn
+-chemical::reassign_atom_types fa_standard:GUA:N2:Ndbn
+-chemical::reassign_atom_types fa_standard:CYT:N4:Ndbn
+-chemical::reassign_atom_types fa_standard:GUA:C6:CBdd
+-chemical::reassign_atom_types fa_standard:CYT:C2:CBdd
+-chemical::reassign_atom_types fa_standard:THY:C2:CBdd
+-chemical::reassign_atom_types fa_standard:THY:C4:CBdd
+
+## new phosphate
+-chemical::clone_atom_types fa_standard:OOC:OOP
+-chemical::reassign_atom_types fa_standard:ADE:OP1:OOP
+-chemical::reassign_atom_types fa_standard:ADE:OP2:OOP
+-chemical::reassign_atom_types fa_standard:CYT:OP1:OOP
+-chemical::reassign_atom_types fa_standard:CYT:OP2:OOP
+-chemical::reassign_atom_types fa_standard:GUA:OP1:OOP
+-chemical::reassign_atom_types fa_standard:GUA:OP2:OOP
+-chemical::reassign_atom_types fa_standard:THY:OP1:OOP
+-chemical::reassign_atom_types fa_standard:THY:OP2:OOP
+
+
+# new atom types
+
+# "polar"-bonded carbon
+-chemical::clone_atom_types fa_standard:CH1:CHR1
+
+# "polar"-bonded carbon (multi bonds away)
+-chemical::clone_atom_types fa_standard:CH1:CHR2
+
+# "polar"-bonded Hapo
+-chemical::clone_atom_types fa_standard:Hapo:HapR
+
+# HAbb
+-chemical::clone_atom_types fa_standard:Hapo:HAbb
+
+## ARG/LYS
+-chemical::reassign_atom_types fa_standard:ARG:CD:CHR1
+-chemical::reassign_atom_types fa_standard:ARG:CZ:CHR1
+-chemical::reassign_atom_types fa_standard:LYS:CE:CHR1
+
+-chemical::reassign_atom_types fa_standard:ARG:CG:CHR2
+-chemical::reassign_atom_types fa_standard:ARG:CB:CHR2
+-chemical::reassign_atom_types fa_standard:LYS:CD:CHR2
+-chemical::reassign_atom_types fa_standard:LYS:CG:CHR2
+-chemical::reassign_atom_types fa_standard:LYS:CB:CHR2
+
+-chemical::reassign_atom_types fa_standard:ARG:1HD:HapR
+-chemical::reassign_atom_types fa_standard:ARG:2HD:HapR
+-chemical::reassign_atom_types fa_standard:ARG:1HG:HapR
+-chemical::reassign_atom_types fa_standard:ARG:2HG:HapR
+-chemical::reassign_atom_types fa_standard:ARG:1HB:HapR
+-chemical::reassign_atom_types fa_standard:ARG:2HB:HapR
+-chemical::reassign_atom_types fa_standard:LYS:1HE:HapR
+-chemical::reassign_atom_types fa_standard:LYS:2HE:HapR
+-chemical::reassign_atom_types fa_standard:LYS:1HD:HapR
+-chemical::reassign_atom_types fa_standard:LYS:2HD:HapR
+-chemical::reassign_atom_types fa_standard:LYS:1HG:HapR
+-chemical::reassign_atom_types fa_standard:LYS:2HG:HapR
+-chemical::reassign_atom_types fa_standard:LYS:1HB:HapR
+-chemical::reassign_atom_types fa_standard:LYS:2HB:HapR
+
+## HIS (HIS_D)
+-chemical::reassign_atom_types fa_standard:HIS:CG:CHR1
+-chemical::reassign_atom_types fa_standard:HIS:CD2:CHR1
+-chemical::reassign_atom_types fa_standard:HIS:CE1:CHR1
+-chemical::reassign_atom_types fa_standard:HIS:CB:CHR2
+-chemical::reassign_atom_types fa_standard:HIS_D:CG:CHR1
+-chemical::reassign_atom_types fa_standard:HIS_D:CD2:CHR1
+-chemical::reassign_atom_types fa_standard:HIS_D:CE1:CHR1
+-chemical::reassign_atom_types fa_standard:HIS_D:CB:CHR2
+
+-chemical::reassign_atom_types fa_standard:HIS:HD2:HapR
+-chemical::reassign_atom_types fa_standard:HIS:HE1:HapR
+-chemical::reassign_atom_types fa_standard:HIS:1HB:HapR
+-chemical::reassign_atom_types fa_standard:HIS:2HB:HapR
+-chemical::reassign_atom_types fa_standard:HIS_D:HD2:HapR
+-chemical::reassign_atom_types fa_standard:HIS_D:HE1:HapR
+-chemical::reassign_atom_types fa_standard:HIS_D:1HB:HapR
+-chemical::reassign_atom_types fa_standard:HIS_D:2HB:HapR
+
+## ASP/GLU/ASN/GLN
+-chemical::reassign_atom_types fa_standard:ASP:CG:CHR1
+-chemical::reassign_atom_types fa_standard:GLU:CD:CHR1
+-chemical::reassign_atom_types fa_standard:ASN:CG:CHR1
+-chemical::reassign_atom_types fa_standard:GLN:CD:CHR1
+-chemical::reassign_atom_types fa_standard:ASP:CB:CHR2
+-chemical::reassign_atom_types fa_standard:GLU:CG:CHR2
+-chemical::reassign_atom_types fa_standard:ASN:CB:CHR2
+-chemical::reassign_atom_types fa_standard:GLN:CG:CHR2
+-chemical::reassign_atom_types fa_standard:GLU:CB:CHR2
+-chemical::reassign_atom_types fa_standard:GLN:CB:CHR2
+
+-chemical::reassign_atom_types fa_standard:ASP:1HB:HapR
+-chemical::reassign_atom_types fa_standard:ASP:2HB:HapR
+
+-chemical::reassign_atom_types fa_standard:ASN:1HB:HapR
+-chemical::reassign_atom_types fa_standard:ASN:2HB:HapR
+
+-chemical::reassign_atom_types fa_standard:GLU:1HG:HapR
+-chemical::reassign_atom_types fa_standard:GLU:2HG:HapR
+-chemical::reassign_atom_types fa_standard:GLU:1HB:HapR
+-chemical::reassign_atom_types fa_standard:GLU:2HB:HapR
+
+-chemical::reassign_atom_types fa_standard:GLN:1HG:HapR
+-chemical::reassign_atom_types fa_standard:GLN:2HG:HapR
+-chemical::reassign_atom_types fa_standard:GLN:1HB:HapR
+-chemical::reassign_atom_types fa_standard:GLN:2HB:HapR
+
+## SER/THR/TYR
+-chemical::reassign_atom_types fa_standard:THR:CB:CHR1
+-chemical::reassign_atom_types fa_standard:SER:CB:CHR1
+-chemical::reassign_atom_types fa_standard:TYR:CZ:CHR1
+-chemical::reassign_atom_types fa_standard:THR:CG2:CHR2
+
+-chemical::reassign_atom_types fa_standard:THR:HB:HapR
+-chemical::reassign_atom_types fa_standard:THR:1HG2:HapR
+-chemical::reassign_atom_types fa_standard:THR:2HG2:HapR
+-chemical::reassign_atom_types fa_standard:THR:3HG2:HapR
+-chemical::reassign_atom_types fa_standard:SER:1HB:HapR
+-chemical::reassign_atom_types fa_standard:SER:2HB:HapR
+
+# PRO
+-chemical::reassign_atom_types fa_standard:PRO:CD:CHR2
+-chemical::reassign_atom_types fa_standard:PRO:1HD:HapR
+-chemical::reassign_atom_types fa_standard:PRO:2HD:HapR
+
+## backbone C-alpha hydrogen
+-chemical::reassign_atom_types fa_standard:ALA:HA:HAbb
+-chemical::reassign_atom_types fa_standard:ARG:HA:HAbb
+-chemical::reassign_atom_types fa_standard:ASN:HA:HAbb
+-chemical::reassign_atom_types fa_standard:ASP:HA:HAbb
+-chemical::reassign_atom_types fa_standard:CYS:HA:HAbb
+-chemical::reassign_atom_types fa_standard:GLU:HA:HAbb
+-chemical::reassign_atom_types fa_standard:GLN:HA:HAbb
+-chemical::reassign_atom_types fa_standard:GLY:1HA:HAbb
+-chemical::reassign_atom_types fa_standard:GLY:2HA:HAbb
+-chemical::reassign_atom_types fa_standard:HIS:HA:HAbb
+-chemical::reassign_atom_types fa_standard:HIS_D:HA:HAbb
+-chemical::reassign_atom_types fa_standard:ILE:HA:HAbb
+-chemical::reassign_atom_types fa_standard:LEU:HA:HAbb
+-chemical::reassign_atom_types fa_standard:LYS:HA:HAbb
+-chemical::reassign_atom_types fa_standard:MET:HA:HAbb
+-chemical::reassign_atom_types fa_standard:PHE:HA:HAbb
+-chemical::reassign_atom_types fa_standard:PRO:HA:HAbb
+-chemical::reassign_atom_types fa_standard:SER:HA:HAbb
+-chemical::reassign_atom_types fa_standard:THR:HA:HAbb
+-chemical::reassign_atom_types fa_standard:TRP:HA:HAbb
+-chemical::reassign_atom_types fa_standard:TYR:HA:HAbb
+-chemical::reassign_atom_types fa_standard:VAL:HA:HAbb
+
+#
+-score::unmodifypot true
+-score::fa_Hatr true
+-score::hbond_new_sp3_acc true
+#-score::elec_sigmoidal_die true
+-dna::specificity::lk_ball_water_fade 1.0
+-dna::specificity::lk_ball_for_bb true
+-dna::specificity::lk_ball_bridge_angle_widthscale 2.8
+-corrections::shapovalov_lib_fixes_enable true
+-corrections::shapovalov_lib::shap_dun10_enable false
+-corrections::shapovalov_lib::shap_p_aa_pp_smooth_level 1
+-corrections::score::rama_pp_map scoring/score_functions/rama/fd_beta_nov2016
+-corrections::score::dun10_dir rotamer/beta_nov2016
+-corrections::score::bbdep_omega true
+-score::elec_representative_cp_flip true
+-score::bonded_params_dir scoring/score_functions/bondlength_bondangle
+
+# everything under this line can be optimized
+
+##dna frozen
+-chemical:set_atom_properties fa_standard:Pdna:LK_DGFREE:-4.0
+-chemical:set_atom_properties fa_standard:OOP:LK_DGFREE:-6.5
+-chemical:set_atom_properties fa_standard:Oet2:LK_DGFREE:-6.5
+-chemical:set_atom_properties fa_standard:Oet3:LK_DGFREE:-6.5
+-chemical:set_atom_properties fa_standard:Pdna:LK_VOLUME:14.7
+-chemical:set_atom_properties fa_standard:OOP:LK_VOLUME:14.2
+-chemical:set_atom_properties fa_standard:Oet2:LK_VOLUME:12.8
+-chemical:set_atom_properties fa_standard:Oet3:LK_VOLUME:12.8
+-chemical:set_atom_properties fa_standard:OBdd:LK_VOLUME:12.2
+-chemical:set_atom_properties fa_standard:Pdna:LJ_RADIUS:2.0
+-chemical:set_atom_properties fa_standard:OOP:LJ_RADIUS:1.66
+-chemical:set_atom_properties fa_standard:Oet2:LJ_RADIUS:1.66
+-chemical:set_atom_properties fa_standard:Oet3:LJ_RADIUS:1.66
+-chemical:set_atom_properties fa_standard:Pdna:LJ_WDEPTH:0.08
+-chemical:set_atom_properties fa_standard:OOP:LJ_WDEPTH:0.015
+-chemical:set_atom_properties fa_standard:Oet2:LJ_WDEPTH:0.015
+-chemical:set_atom_properties fa_standard:Oet3:LJ_WDEPTH:0.015
+-chemical:set_atom_properties fa_standard:NH2O:LK_VOLUME:12.7
+-chemical:set_atom_properties fa_standard:NH2O:LJ_RADIUS:1.6
+-chemical:set_atom_properties fa_standard:NH2O:LJ_WDEPTH:0.12
+
+
+-chemical:set_atom_properties fa_standard:aroC:LK_DGFREE:1.48115
+-chemical:set_atom_properties fa_standard:CH2:LK_DGFREE:0.85355
+-chemical:set_atom_properties fa_standard:CHR1:LK_DGFREE:-3.39021
+-chemical:set_atom_properties fa_standard:CHR2:LK_DGFREE:-1.77191
+-chemical:set_atom_properties fa_standard:CH3:LK_DGFREE:6.74012
+-chemical:set_atom_properties fa_standard:CH1:LK_DGFREE:0.80384
+-chemical:set_atom_properties fa_standard:S:LK_DGFREE:-6.21417
+-chemical:set_atom_properties fa_standard:SH1:LK_DGFREE:-0.78601
+-chemical:set_atom_properties fa_standard:OH:LK_DGFREE:-6.76705
+-chemical:set_atom_properties fa_standard:CAbb:LK_DGFREE:5.25012
+-chemical:set_atom_properties fa_standard:CH0:LK_DGFREE:-0.82360
+-chemical:set_atom_properties fa_standard:CObb:LK_DGFREE:4.56351
+-chemical:set_atom_properties fa_standard:OCbb:LK_DGFREE:-10.38362
+-chemical:set_atom_properties fa_standard:Nbb:LK_DGFREE:-12.98037
+-chemical:set_atom_properties fa_standard:NtrR:LK_DGFREE:-8.17206
+-chemical:set_atom_properties fa_standard:OOC:LK_DGFREE:-10.61488
+-chemical:set_atom_properties fa_standard:Narg:LK_DGFREE:-10.14496
+-chemical:set_atom_properties fa_standard:OW:LK_DGFREE:-3.21946
+-chemical:set_atom_properties fa_standard:ONH2:LK_DGFREE:-6.48077
+-chemical:set_atom_properties fa_standard:Nlys:LK_DGFREE:-21.99603
+
+-chemical:set_atom_properties fa_standard:NtrR:LK_LAMBDA:3.47680
+-chemical:set_atom_properties fa_standard:aroC:LK_LAMBDA:3.87240
+-chemical:set_atom_properties fa_standard:CHR1:LK_LAMBDA:3.64187
+-chemical:set_atom_properties fa_standard:CHR2:LK_LAMBDA:3.60107
+-chemical:set_atom_properties fa_standard:CH0:LK_LAMBDA:3.30079
+-chemical:set_atom_properties fa_standard:CH1:LK_LAMBDA:3.55028
+-chemical:set_atom_properties fa_standard:CH2:LK_LAMBDA:3.57020
+-chemical:set_atom_properties fa_standard:CH3:LK_LAMBDA:3.48696
+-chemical:set_atom_properties fa_standard:Nhis:LK_LAMBDA:3.59093
+-chemical:set_atom_properties fa_standard:Ntrp:LK_LAMBDA:3.55883
+-chemical:set_atom_properties fa_standard:Npro:LK_LAMBDA:3.61513
+-chemical:set_atom_properties fa_standard:S:LK_LAMBDA:3.56874
+-chemical:set_atom_properties fa_standard:SH1:LK_LAMBDA:3.52694
+-chemical:set_atom_properties fa_standard:CAbb:LK_LAMBDA:3.46332
+-chemical:set_atom_properties fa_standard:OH:LK_LAMBDA:3.58524
+-chemical:set_atom_properties fa_standard:OW:LK_LAMBDA:3.55291
+-chemical:set_atom_properties fa_standard:CObb:LK_LAMBDA:3.61040
+-chemical:set_atom_properties fa_standard:NH2O:LK_LAMBDA:3.53053
+-chemical:set_atom_properties fa_standard:Nbb:LK_LAMBDA:3.77677
+-chemical:set_atom_properties fa_standard:ONH2:LK_LAMBDA:3.53316
+-chemical:set_atom_properties fa_standard:OCbb:LK_LAMBDA:3.66964
+-chemical:set_atom_properties fa_standard:Nlys:LK_LAMBDA:3.57672
+-chemical:set_atom_properties fa_standard:OOC:LK_LAMBDA:3.47245
+-chemical:set_atom_properties fa_standard:Narg:LK_LAMBDA:3.59809
+
+
+-chemical:set_atom_properties fa_standard:HNbb:LJ_RADIUS:0.89412
+-chemical:set_atom_properties fa_standard:HAbb:LJ_RADIUS:1.31003
+-chemical:set_atom_properties fa_standard:CAbb:LJ_RADIUS:1.92819
+-chemical:set_atom_properties fa_standard:CObb:LJ_RADIUS:1.92694
+-chemical:set_atom_properties fa_standard:OCbb:LJ_RADIUS:1.64959
+-chemical:set_atom_properties fa_standard:Nbb:LJ_RADIUS:1.82498
+-chemical:set_atom_properties fa_standard:HNbb:LJ_WDEPTH:0.00491
+-chemical:set_atom_properties fa_standard:Nbb:LJ_WDEPTH:0.17275
+-chemical:set_atom_properties fa_standard:CAbb:LJ_WDEPTH:0.05423
+-chemical:set_atom_properties fa_standard:CObb:LJ_WDEPTH:0.14603
+-chemical:set_atom_properties fa_standard:OCbb:LJ_WDEPTH:0.14678
+-chemical:set_atom_properties fa_standard:HAbb:LJ_WDEPTH:0.02591
+
+# Flags from past runs
+-chemical:set_atom_properties fa_standard:COO:LK_DGFREE:-2.70088
+-chemical:set_atom_properties fa_standard:CNH2:LK_DGFREE:4.52843
+-chemical:set_atom_properties fa_standard:COO:LK_LAMBDA:3.55511
+-chemical:set_atom_properties fa_standard:CNH2:LK_LAMBDA:3.59234
+
+-chemical:set_atom_properties fa_standard:S:LJ_RADIUS:1.975967
+-chemical:set_atom_properties fa_standard:SH1:LJ_RADIUS:1.97640
+-chemical:set_atom_properties fa_standard:HS:LJ_RADIUS:0.39392
+-chemical:set_atom_properties fa_standard:OH:LJ_RADIUS:1.59613
+-chemical:set_atom_properties fa_standard:aroC:LJ_RADIUS:2.045
+-chemical:set_atom_properties fa_standard:Haro:LJ_RADIUS:1.40
+-chemical:set_atom_properties fa_standard:CHR1:LJ_RADIUS:1.85316
+-chemical:set_atom_properties fa_standard:CHR2:LJ_RADIUS:2.05005
+-chemical:set_atom_properties fa_standard:CH0:LJ_RADIUS:1.97287
+-chemical:set_atom_properties fa_standard:CH1:LJ_RADIUS:2.07
+-chemical:set_atom_properties fa_standard:CH2:LJ_RADIUS:2.01
+-chemical:set_atom_properties fa_standard:CH3:LJ_RADIUS:2.08
+-chemical:set_atom_properties fa_standard:Hapo:LJ_RADIUS:1.48
+-chemical:set_atom_properties fa_standard:HapR:LJ_RADIUS:1.38401
+
+-chemical:set_atom_properties fa_standard:S:LJ_WDEPTH:0.45485
+-chemical:set_atom_properties fa_standard:SH1:LJ_WDEPTH:0.45779
+-chemical:set_atom_properties fa_standard:HS:LJ_WDEPTH:0.05055
+-chemical:set_atom_properties fa_standard:OH:LJ_WDEPTH:0.16813
+-chemical:set_atom_properties fa_standard:Hapo:LJ_WDEPTH:0.021
+-chemical:set_atom_properties fa_standard:HapR:LJ_WDEPTH:0.01582
+-chemical:set_atom_properties fa_standard:Haro:LJ_WDEPTH:0.023
+-chemical:set_atom_properties fa_standard:CH0:LJ_WDEPTH:0.12475
+-chemical:set_atom_properties fa_standard:CH1:LJ_WDEPTH:0.064
+-chemical:set_atom_properties fa_standard:CH2:LJ_WDEPTH:0.068
+-chemical:set_atom_properties fa_standard:CH3:LJ_WDEPTH:0.064
+-chemical:set_atom_properties fa_standard:CHR1:LJ_WDEPTH:0.08333
+-chemical:set_atom_properties fa_standard:CHR2:LJ_WDEPTH:0.06538
+-chemical:set_atom_properties fa_standard:aroC:LJ_WDEPTH:0.075
+
+# charges
+-score::hb_don_strength hbdon_PBA:1.623
+-score::hb_acc_strength hbacc_PBA:1.173
+-score::hb_don_strength hbdon_HXL:1.025
+-score::hb_don_strength hbdon_IME:1.460
+-score::hb_don_strength hbdon_GDE:1.057
+-score::hb_don_strength hbdon_AHX:1.082
+-score::hb_don_strength hbdon_H2O:1.156
+-score::hb_don_strength hbdon_AMO:1.365
+-score::hb_don_strength hbdon_IND:1.190
+-score::hb_don_strength hbdon_IMD:1.173
+-score::hb_don_strength hbdon_CXA:1.327
+-score::hb_don_strength hbdon_GDH:1.076
+-score::hb_acc_strength hbacc_HXL:1.445
+-score::hb_acc_strength hbacc_CXA:1.177
+-score::hb_acc_strength hbacc_H2O:1.219
+-score::hb_acc_strength hbacc_IMD:1.093
+-score::hb_acc_strength hbacc_IME:1.206
+-score::hb_acc_strength hbacc_AHX:1.205
+-score::hb_acc_strength hbacc_CXL:1.186
+#-elec_sigmoidal_die_D 79.931
+#-elec_sigmoidal_die_D0 6.648
+#-elec_sigmoidal_die_S 0.441546
+-lk_ball_waters_sp2 2.828 134.5 0.0 2.828 134.5 180.0
+-lk_ball_waters_sp3  2.828 109.3 120.0 2.828 109.3 240.0
+-lk_ball_waters_ring 2.828 180 0
+-lk_ball_waters_donor 2.828
+-lk_ball_ramp_width_A2 3.709
+-lk_ball_overlap_width_A2 2.600
+-lk_ball_overlap_gap 0.500
+#-score::set_weights lk_ball_bridge_uncpl 0.000
+
+# Flags related to burial-dependent electrostatics that will not be optimized
+#-elec_dd_probe_radius 3.0
+#-elec_dd_sr_depth_scale 0.2
+#-elec_dd_sig_inflec_pt_bb 1.5
+#-elec_dd_sig_S_bb 1.5
+#-elec_dd_sig_inflec_pt_long_scs -0.5
+#-elec_dd_sig_S_long_scs 1.5
+#-elec_dd_sig_inflec_pt_medium_scs 1.0
+#-elec_dd_sig_S_medium_scs 1.5
+#-elec_dd_sig_inflec_pt_short_scs 1.75
+#-elec_dd_sig_S_short_scs 1.5
+#-elec_dd_probe_resolution 0.5

@@ -1,0 +1,7 @@
+PyRosetta3.9
+numpy
+Bio
+pandas
+torch
+LigandMPNN
+Rosetta
