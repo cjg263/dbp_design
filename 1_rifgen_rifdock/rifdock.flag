@@ -1,19 +1,19 @@
 ########################################### what you need for docking ###########################################
--rif_dock:target_pdb            /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_target.pdb.gz
--rif_dock:target_res            /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//target_res.list
+-rif_dock:target_pdb            CCGCACCGACTCACG_rnd1.rif.gz_target.pdb.gz
+-rif_dock:target_res            target_res.list
 -rif_dock:target_rf_resl        0.25
--rif_dock:target_rf_cache       /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//__RF_CGCGATGCTTCTCG.pdb_CEN_trhash58851775_resl0.25_osamp2_replonlybdry
--rif_dock:target_bounding_xmaps /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_BOUNDING_RIF_16.xmap.gz
--rif_dock:target_bounding_xmaps /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_BOUNDING_RIF_08.xmap.gz
--rif_dock:target_bounding_xmaps /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_BOUNDING_RIF_04.xmap.gz
--rif_dock:target_bounding_xmaps /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_BOUNDING_RIF_02.xmap.gz
--rif_dock:target_bounding_xmaps /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_BOUNDING_RIF_01.xmap.gz
--rif_dock:target_rif            /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz
--rif_dock:target_donors         /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_donors.pdb.gz
--rif_dock:target_acceptors      /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//CGCGATGCTTCTCG_rnd1.rif.gz_acceptors.pdb.gz
+-rif_dock:target_rf_cache       rifgen_output//__RF_CGCACCGACTCACG.pdb_CEN_trhash58851775_resl0.25_osamp2_replonlybdry
+-rif_dock:target_bounding_xmaps rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_BOUNDING_RIF_16.xmap.gz
+-rif_dock:target_bounding_xmaps rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_BOUNDING_RIF_08.xmap.gz
+-rif_dock:target_bounding_xmaps rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_BOUNDING_RIF_04.xmap.gz
+-rif_dock:target_bounding_xmaps rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_BOUNDING_RIF_02.xmap.gz
+-rif_dock:target_bounding_xmaps rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_BOUNDING_RIF_01.xmap.gz
+-rif_dock:target_rif            rifgen_output//CGCACCGACTCACG_rnd1.rif.gz
+-rif_dock:target_donors         rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_donors.pdb.gz
+-rif_dock:target_acceptors      rifgen_output//CGCACCGACTCACG_rnd1.rif.gz_acceptors.pdb.gz
 -rif_dock:extra_rotamers        0
 -rif_dock:extra_rif_rotamers    1
--rif_dock:rot_spec_fname        /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output//rotamer_index_spec.txt
+-rif_dock:rot_spec_fname        rifgen_output//rotamer_index_spec.txt
 #################################################################################################################
 
 
@@ -29,7 +29,7 @@
 
 #################################### Flags that control output ##########################################
 
--rif_dock:outdir  /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifdock_output          # the output folder for this run
+-rif_dock:outdir  rifdock_output          # the output folder for this run
 -rif_dock:dokfile all.dok                 # the "score file" for this run
 
 -rif_dock:n_pdb_out 1000                   # max number of output pdbs
@@ -211,7 +211,7 @@
 
 ################################ Rosetta Database ##########################################
 
--database /software/rifdock/latest/database
+-database /software/rifdock/database
 
 ############################################################################################
 ############################################################################################
@@ -237,7 +237,7 @@
 -rif_dock:rotrf_resl   0.25
 -rif_dock:rotrf_spread 0.0
 -rif_dock:rotrf_scale_atr 1.0
--rif_dock:rotrf_cache_dir /net/scratch/robpec/rifdock_cache         # This folder only exists to save time. 
+-rif_dock:rotrf_cache_dir ./rifdock_cache         # This folder only exists to save time. 
                                                           #   Set it somewhere you can write if the default doesn't work
 
 ### Brian doesn't know what these flags do

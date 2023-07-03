@@ -1,11 +1,11 @@
 
 ################### File I/O flags ######################################
--rifgen:target           /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//target_seqs/CGCGATGCTTCTCG.pdb
+-rifgen:target           CGCACCGACTCACG.pdb
 -in:file:extra_res_fa
--rifgen:target_res       /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//target_res.list
+-rifgen:target_res       target_res.list
 
--rifgen:outdir           /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//CGCGATGCTTCTCG_rifgen_output/
--rifgen:outfile          CGCGATGCTTCTCG_rnd1.rif.gz
+-rifgen:outdir           rifgen_output/
+-rifgen:outfile          CGCACCGACTCACG_rnd1.rif.gz
 
 
 
@@ -42,7 +42,7 @@
 # Pick one of the two following methods for hotspot input:
 
 # Hotspot input multiple distinct groups
--hotspot_groups /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group20.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group5.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group4.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group21.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group26.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group7.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group19.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group17.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group23.pdb /net/scratch/rpmchugh/de_novo_dna/SEP2022/rifdock_stage//base_aligned_hotspot_groups/CGCGATGCTTCTCG_group18.pdb
+-hotspot_groups CGCACCGACTCACG_group1.pdb CGCACCGACTCACG_group7.pdb
 
 # Hotspot input every hotspot is a group
 # -hotspot_groups all_my_hotspots.pdb
@@ -69,7 +69,7 @@
 
 
 # Change this depending on what version of rifdock you are using
--database /home/bcov/rifdock/latest/database
+-database /software/rifdock/database
 
 
 ###################### Experimental flags ##################################
@@ -104,8 +104,7 @@
 #-rifgen::search_resolutions 3.0 1.5 0.75 0.375
 
 # This folder only exists to save time. Set it somewhere you can write if the default doesn't work
-#-rifgen:data_cache_dir    /software/rifdock/cache
--rifgen:data_cache_dir    /net/scratch/rpmchugh/rifgen_orbital_test_cache
+-rifgen:data_cache_dir    /software/rifdock/cache
 
 -rifgen:score_cut_adjust 0.8
 
