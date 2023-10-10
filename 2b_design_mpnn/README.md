@@ -8,10 +8,10 @@ Options are also available to freeze resis labeled as hotspots in the pdb labels
 Design can be run in prefilter mode, which first checks if a design passes specified prefilters that are calibrated for their likelihood to pass final metric cutoffs. To run a design in prefilter calibration mode, use the following example:
 
 `python  {full_path_to_mpnn_design.py} -silent {silent} \
-                                -seq_per_struct 1 \  ### this option specificies the number of MPNN sequences to generate per input structure
-                                -n_per_silent 1 \ ### In prefilter calibration, you should use this to randomly sample designs from rifdock silent file (there will be thousands of these silent files)
+                                -seq_per_struct 1 \  ### this option specifies the number of MPNN sequences to generate per input structure
+                                -n_per_silent 1 \ ### In prefilter calibration, you should use this to randomly sample designs from rifdock silent file
                                 -temperature 0.2 \ ### This specificies the temperature used in LigandMPNN design
-                                -redesign_base_hbonds 1 \ ### In some cases, you want to turn off redesign of residues that form hydrogen bonds to bases. In early stages of design this should be set to 1. 
+                                -redesign_base_hbonds 1 \ ### In some cases, you want to turn off redesign of residues that form hydrogen bonds to bases, but not here.
                                 -hbond_energy_cut -0.5 \ ### This specificies the energy cutoff for what counts as a hydrogen bond in filtering steps
                                 -run_predictor 1 \ ### This specifies whether you should run a prefilter before full fast relax. If set to 0, the script will proceed straight to full relax after MPNN sequence design
                                 -run_relax 1\n ### Setting this to 1 specificies that a full relax should be performed on the final structures. If set to 0, the script will save a structure with the MPNN sequence threaded onto the input design model.
