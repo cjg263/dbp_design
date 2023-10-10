@@ -1,6 +1,6 @@
 # MPNN sequence design
 
-Running MPNN requires installation of several programsi, including LigandMPNN, PyRosetta, PSI_pred, and PSI_blast. The paths to these programs must be encoded in the 'external_paths.txt' folder. 
+Running MPNN requires installation of several programs, including LigandMPNN, PyRosetta, PSI_pred, and PSI_blast. The paths to these programs must be encoded in the 'external_paths.txt' folder. 
 The mpnn_design.py script automates the process of MPNN design and has several options including design of structures in silent files or a folder of pdbs. Additional options include the ability to generate many MPNN sequences and run FastDesign on the resulting outputs constrained by a PSSM from the MPNN designs. 
 
 Options are also available to freeze resis labeled as hotspots in the pdb labels, freeze specific resis provided in a comma separated list, and skip designs that lack mainchain-phosphate hydrogen bonds or residues labeled with MOTIF or RIFRES in the recognition helix.
