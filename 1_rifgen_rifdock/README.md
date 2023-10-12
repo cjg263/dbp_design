@@ -1,8 +1,21 @@
 # Protein-DNA docking with RIFgen + RIFdock
 
-Running this pipeline requires pre-installation of RIFdock, which itself requires Rosetta. Follow instructions at https://github.com/rifdock/rifdock .
+Running this pipeline requires pre-installation of RIFdock, which itself requires Rosetta. Follow instructions at https://github.com/rifdock/rifdock. Additionally, silent tools (https://github.com/bcov77/silent_tools) should be installed to manage PDB silent files:
 
-Running RIFgen requires an input pdb of the target DNA, such as `CGCACCGACTCACG.pdb`, and further inputs of protein residues to use as hotspots, such as `CGCACCGACTCACG_group7.pdb`.
+```
+cd ../software
+git clone https://github.com/bcov77/silent_tools
+cd silent_tools
+echo "PATH=\$PATH:$(pwd)"
+```
+
+Running RIFgen requires an input pdb of the target DNA, such as `CGCACCGACTCACG.pdb`, and further inputs of protein residues to use as hotspots, which are provided in the hotspots folder. You will also require the unzipped scaffold pdbs:
+
+```
+cd ./scaffold_pdbs; unzip scaffold.pdbs; cd ../
+```
+
+The contained jupyter notebook walks through the steps in RIFgen/RIFdock for DBPs, although some details are specific to the IPD computing cluster. This notebook requires a python environment with the following packages: sys, os, time, glob, random, shutil, subprocess, math, re, numpy, pandas.
 
 RIFgen is controlled by many command-line flags, which we have placed into the file `rifgen.flag` as an example. 
 
