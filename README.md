@@ -65,7 +65,3 @@ python {full_path_to_mpnn_design.py} -silent {silent} \
                                 -hbond_energy_cut -0.5 \
                                 -run_relax 1\n`
 ```
-
-
-## Data Analysis
-We have also included a Jupyter notebook used to generate figures in the manuscript and to demonstrate how data analysis was performed. "Glasscock_et al_figure_generation.ipynb"
