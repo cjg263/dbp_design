@@ -1,0 +1,343 @@
+#!/usr/bin/env python
+
+# This is a script that automates the creation and submission of a batch of jobs in a Brian-style file structure
+# Written by Nate Bennett (nrbennet@uw.edu)
+
+import sys, subprocess, os
+from argparse import ArgumentParser
+import distutils.spawn
+import glob
+sys.path.append(os.path.dirname(distutils.spawn.find_executable("silent_tools.py")))
+import silent_tools
+from silent_tools import eprint
+
+def cmd(command, wait=True):
+    the_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    if (not wait):
+        return
+    the_stuff = the_command.communicate()
+    return str(the_stuff[0]) + str(the_stuff[1])
+
+def incrementxname( curr ):
+    out_list = []
+    carry_one = False
+    z_ascii = ord('z')
+    a_ascii = ord('a')
+    for i in reversed( range( 1, len(curr) ) ):
+        curr_char = curr[ i ]
+        curr_ascii = ord( curr_char )
+
+        if( i == len(curr) - 1 ):
+            curr_ascii += 1
+
+        elif( carry_one ):
+            curr_ascii += 1
+            carry_one = False
+
+        if curr_ascii > z_ascii:
+            curr_ascii = a_ascii
+            carry_one = True
+
+        out_list.insert( 0, chr(curr_ascii) )
+
+    if carry_one:
+        out_list.insert( 0, 'a' )
+    out_list.insert( 0, 'x' )
+
+    return ''.join( out_list )
+
+# This does ceiling integer division and is stolen from stackoverflow, thanks stackoverflow!!
+def ceildiv(a, b):
+    return -(-a // b)
+
+# 
+# Read in Arguments
+# 
+
+if (len(sys.argv) == 1):
+    eprint("")
+    eprint('This script prepares your jobs to run as array jobs. It will create a Brian-style file structure for commands and runs.')
+    eprint("Arguments:")
+    eprint(" -prefix            : The name that you want to prefix the _commands and _runs directories")
+    eprint(" -xml               : The xml file to use, can be global or local path")
+    eprint(" -flags             : The flags file to use, can be global or local path")
+    eprint(" -silent            : The silent file that contains structures that you want to submit (can contain other structures as well)")
+    eprint(" -tags              : Optional, a file of that contains the tags of structures in the silent file that you wish to run (default,")
+    eprint("                      all structures in the silent file will be run)")
+    eprint(" -structs_per_job   : The number of structures that you wish to package into one job")
+    eprint(" -cpus              : Optional, the number of cpus per job that you wish to use (default, 1)")
+    eprint(" -mem               : Optional, the amount of memory that you wish to use per job in GB (default, 2)")
+    eprint(" -p                 : Optional, the SLURM queue that you wish to submit your job to (default, medium)")
+    eprint(" -jobs_per_group    : Optional, the number of jobs per submission to SLURM (default, 1)")
+    eprint(" -lite              : Optional, using pdblite files, split large silentfile before submission (default, False)")
+    eprint(" -scratch           : Optional, whether to write the output of the runs to a mirrored directory on scratch (default, False)")
+    eprint(" -dscratch          : Optional, whether to write the output of the runs to a mirrored directory on dscratch (default, False)")
+    eprint(" -h5                : Optional, whether to add flags to only use an hdf5 database (default, False)")
+    eprint(" -pre_split         : Optional, generate split silent files prior to runtime (default, False)")
+    eprint(" -shuffle_tags      : Optional, shuffle the order of tags before splitting (default, False)")
+    eprint(" -no_logs           : Optional, do not write Rosetta output to a log file, ROSETTA_CRASH.log and SLURM logs are still kept (default, False)")
+    eprint(" -hard_split        : Optional, write separate silent files when splitting (default, False)")
+    eprint(" -rosetta           : Optional, the version of rosetta that you wish to use. This takes either a full path")
+    eprint("                      or the preloaded versions 'nrbennet' or 'bcov' which give Nate's or Brian's rosetta respectively.")
+    eprint("                      For Nate's this is: /home/nrbennet/rosetta_builds/master_branch/main/source/cmake/build_release_omp_hdf5/rosetta_scripts")
+    eprint("                      For Brian's this is: /home/bcov/ppi/tutorial_build/main/source/cmake/build_release_omp_hdf5/rosetta_scripts")
+    eprint("                      Also available is nater_hdf5: /home/nrbennet/rosetta_builds/nater_hdf5/main/source/cmake/build_release_omp_hdf5/rosetta_scripts")
+    eprint("                      Also available is bcov_dev: /home/nrbennet/rosetta_builds/bcov_dev/main/source/cmake/build_release_omp_hdf5/rosetta_scripts")
+    eprint("                      (default, nrbennet)")
+    sys.exit(1)
+
+parser = ArgumentParser()
+parser.add_argument("-prefix", type=str, default="")
+parser.add_argument("-xml", type=str, default="")
+parser.add_argument("-flags", type=str, default="")
+parser.add_argument("-silent", type=str, default="")
+parser.add_argument("-tags", type=str, default="")
+parser.add_argument("-structs_per_job", type=int, default="0")
+parser.add_argument("-cpus", type=int, default=1)
+parser.add_argument("-mem", type=int, default=2)
+parser.add_argument("-p", type=str, default="cpu")
+parser.add_argument("-t", type=str, default="24:00:00")
+parser.add_argument("-jobs_per_group", type=int, default=1)
+parser.add_argument("-lite", action='store_true')
+parser.add_argument("-scratch", action='store_true')
+parser.add_argument("-dscratch", action='store_true')
+parser.add_argument("-rosetta", type=str, default="nrbennet")
+parser.add_argument("-h5", action='store_true')
+parser.add_argument("-no_logs", action='store_true')
+parser.add_argument("-hard_split", action='store_true')
+parser.add_argument("-pre_split", action='store_true')
+parser.add_argument("-shuffle_tags", action='store_true')
+
+args = parser.parse_args(sys.argv[1:])
+
+prefix = args.prefix
+xml_filename = args.xml
+flags_filename = args.flags
+silent = args.silent
+tags = args.tags
+structs_per_job = args.structs_per_job
+cpus = args.cpus
+mem = args.mem
+queue = args.p
+timeout = args.t
+group_size = args.jobs_per_group
+lite = args.lite
+scratch = args.scratch
+dscratch = args.dscratch
+rosetta = args.rosetta
+use_h5 = args.h5
+no_logs = args.no_logs
+hard_split = args.hard_split
+pre_split = args.pre_split
+shuffle_tags = args.shuffle_tags
+
+if (xml_filename == '' or flags_filename == ''):
+    sys.exit("This script needs both an xml file and a flags file")
+xml_filename = os.path.abspath( xml_filename )
+flags_filename = os.path.abspath( flags_filename )
+
+if (silent == ''):
+    sys.exit("This script needs either a list of pdb files or a silent file")
+silent = os.path.abspath( silent )
+
+if (prefix == ''):
+	sys.exit("This script needs a prefix name to the _commands and _runs directories")
+
+if ( structs_per_job == 0 ):
+	sys.exit("This script needs a value for structs_per_job")
+
+if ( not ( queue == "cpu" or queue == "cpu-bf" ) ):
+	sys.exit("-p (the SLURM queue) must be one of cpu or cpu-bf")
+
+log_filename = "log.log"
+if no_logs:
+    log_filename = "/dev/null"
+
+if (tags == ''):
+    if not lite and hard_split:
+    	# Generate tags from the silentfile
+        cmd( "silentls %s > tags.list"%silent )
+        tags_filename = os.path.abspath( "tags.list" )
+else:
+    if lite:
+        # They do not work together since lite uses a random split tool for speed. Tags take a lot of time to extract
+        sys.exit( "Lite and tags options currently do not work together, contact Nate (nrbennet@uw.edu) if this is an issue" )
+    tags_filename = os.path.abspath( tags )
+
+if ( rosetta == 'nrbennet' ):
+	rosetta = "/home/nrbennet/rosetta_builds/master_branch/main/source/cmake/build_release_omp_hdf5/rosetta_scripts"
+elif ( rosetta == 'bcov' ):
+	rosetta = "/home/bcov/ppi/tutorial_build/main/source/cmake/build_release_omp_hdf5/rosetta_scripts"
+elif ( rosetta == 'debug' ):
+    rosetta = "/home/nrbennet/rosetta_builds/master_branch/main/source/cmake/build_debug/rosetta_scripts"
+elif ( rosetta == 'nater_hdf5' ):
+    rosetta = "/home/nrbennet/rosetta_builds/nater_hdf5/main/source/cmake/build_release_omp_hdf5/rosetta_scripts"
+elif ( rosetta == "bcov_dev" ):
+    rosetta = "/home/nrbennet/rosetta_builds/bcov_dev/main/source/cmake/build_release_omp_hdf5/rosetta_scripts"
+
+scratchit = False
+if ( dscratch or scratch ):
+    scratchit = True
+    if ( dscratch and scratch ):
+        sys.exit( "-dscratch and -scratch cannot be active at the same time" )
+    if scratch:
+        scratchdir = "/net/scratch"
+    if dscratch:
+        scratchdir = "/dscratch"
+
+
+# 
+# Do it all
+# 
+
+total_path = os.getcwd()
+
+# 
+# This is literally what functions are for. Refactor this sometime - NRB
+# Setting up run and command directories
+# 
+
+
+if( scratchit ):
+    trunc_path = ''
+    if ( total_path.startswith( '/mnt/home' ) ):
+        trunc_path = total_path[9:]
+    elif ( total_path.startswith( '/home' ) ):
+        trunc_path = total_path[5:]
+    else:
+        sys.exit( 'Something is seriously wrong with the current working directory: %s' %total_path )
+
+    runs_path = scratchdir + trunc_path + "/%s_runs"%prefix
+    commands_path = scratchdir + trunc_path + "/%s_commands"%prefix
+
+    # Just for testing
+    print( '\n' )
+    print( 'You have chosen to write your output to scratch' )
+    print( 'I am planning on writing your jobs to %s'%runs_path )
+
+    cmd( "mkdir -p %s" %runs_path )
+    cmd( "ln -s %s" %runs_path )
+
+    cmd( "mkdir -p %s" %commands_path )
+    cmd( "ln -s %s" %commands_path )
+
+else:
+    cmd( "mkdir %s_runs" %prefix )
+    cmd( "mkdir %s_commands" %prefix )
+
+    runs_path = os.path.join(total_path, "%s_runs"%prefix)
+    commands_path = os.path.join(total_path, "%s_commands"%prefix)
+
+# 
+# END setting up run and command directories
+# 
+
+os.chdir( commands_path )
+cmd( "mkdir splits" )
+os.chdir( 'splits' )
+splits_path = os.getcwd()
+
+# 
+# Split silentfile
+# 
+
+if not hard_split:
+    # Do an implicit split
+    splits_list = "silent_splits.list"
+    cmd( "/mnt/home/nrbennet/software/silent_tools/silentsplitdd %s %i > %s"%( silent, structs_per_job, splits_list ) )
+
+elif lite or pre_split:
+    # lite and doing an explicit split
+    # Make this call a function eventually - NRB
+    cmd( "/mnt/home/nrbennet/software/silent_tools/silentsplitnoshuf %s %i"%( silent, structs_per_job ) )
+
+else:
+
+    if shuffle_tags:
+        cmd( "cat %s | shuf | split -l %i" %(tags_filename, structs_per_job) )
+    else:
+        cmd( "split -l %i %s" %(structs_per_job, tags_filename) )
+
+# 
+# End split silentfile
+# 
+
+extra_bit = ''
+if( use_h5 ):
+    # -output_buffer_limit 100 
+    extra_bit = "-database_hdf5 /home/nrbennet/rosetta_builds/nater_hdf5/main/database/rosetta_database.h5\
+     -database_hdf5_only -parser:use_xml_caching -database_cache_dir /home/nrbennet/rosetta_builds/nater_hdf5/main/database \
+     -no_binary_dunlib true -nthreads 1 -job_definition_file /mnt/home/nrbennet/random/jd3_files/empty_job.xml "
+
+commands = []
+
+if hard_split:
+    for x in glob.glob("x*"):
+        full_x = os.path.join(splits_path, x)
+
+        if lite or pre_split:
+            xdir = os.path.splitext( x )[0] # take the .silent off the name
+            commands.append("cd {runs_path}; mkdir {xdir}; cd {xdir}; {rosetta} @{flags_filename} -parser:protocol {xml_filename} -in:file:silent {full_x} {extra_bit}> {log_filename} 2>&1".format(**locals()))
+        else: # normal behavior
+            commands.append("cd {runs_path}; mkdir {x}; cd {x}; cat {full_x} | silentslice {silent} > in.silent; {rosetta} @{flags_filename} -parser:protocol {xml_filename} {extra_bit}> {log_filename} 2>&1".format(**locals()))
+
+else:
+    assert( not splits_list is None )
+
+    with open( splits_list ) as f:
+        x = "xaa"
+        for line in f.readlines():
+            in_silent = line.strip()
+
+            commands.append("cd {runs_path}; mkdir {x}; cd {x}; {rosetta} @{flags_filename} -parser:protocol {xml_filename} -in:file:silent {in_silent} {extra_bit}> {log_filename} 2>&1".format(**locals()))
+
+            x = incrementxname( x )
+
+os.chdir( commands_path )
+
+with open("commands.list", "w") as f:
+    f.write("\n".join(commands))
+    f.write("\n")
+
+num_commands_min_1 = ceildiv( len(commands), group_size ) - 1
+
+test_offset = -1 * len( ' > %s 2>&1'%log_filename )
+test_command = commands[0][:test_offset]
+
+os.chdir( total_path )
+
+assert( os.path.exists("/home/nrbennet/protocols/temppython/local_bcov_scripts/split_commands.py") ), \
+"/home/nrbennet/protocols/temppython/local_bcov_scripts/split_commands.py path does not exist, I probably changed it because I'm dumb"
+
+retval = cmd( "python2 /home/nrbennet/protocols/temppython/local_bcov_scripts/split_commands.py %s_commands/commands.list %s_commands %i %i %i %s"%(prefix, prefix, group_size, mem, cpus, prefix) )
+
+command_string = "sbatch -p %s -t %s -a 0-%i %s_commands/%s_array.submit"%(queue, timeout, num_commands_min_1, prefix, prefix)
+
+with open("run_submit.sh", 'w') as f:
+        f.write( '#!/bin/bash' )
+        f.write( '\n')
+        f.write( command_string )
+        f.write( '\n')
+cmd('chmod +x run_submit.sh')
+with open("test_command.sh", 'w' ) as f:
+        f.write( '#!/bin/bash' )
+        f.write( '\n')
+        f.write( test_command )
+        f.write( '\n')
+cmd('chmod +x test_command.sh')
+
+
+print( "" )
+print("/"*100)
+print( "Please please please run this command to test that your jobs will run correctly:" )
+print( "" )
+print( "./test_command.sh" )
+print( "" )
+print("/"*100)
+print( "" )
+print( "When you are ready and sure that everything is working this is the command that will submit your jobs:")
+print( "" )
+print( "./run_submit.sh" )
+print( "" )
+
+

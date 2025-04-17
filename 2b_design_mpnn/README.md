@@ -3,9 +3,13 @@
 Running MPNN requires installation of several programs, including LigandMPNN, PyRosetta, PSI_pred, and PSI_blast. The paths to these programs must be encoded in the 'external_paths.txt' folder. 
 The mpnn_design.py script automates the process of MPNN design and has several options including design of structures in silent files or a folder of pdbs. Additional options include the ability to generate many MPNN sequences and run FastDesign on the resulting outputs constrained by a PSSM from the MPNN designs. 
 
+An apptainer containing the dependencies necessary for running `mpnn_design.py` may be built from mpnn_design.spec: `apptainer build mpnn_design.sif mpnn_design.spec` 
+
 Options are also available to freeze resis labeled as hotspots in the pdb labels, freeze specific resis provided in a comma separated list, and skip designs that lack mainchain-phosphate hydrogen bonds or residues labeled with MOTIF or RIFRES in the recognition helix.
 
 Design can be run in prefilter mode, which first checks if a design passes specified prefilters that are calibrated for their likelihood to pass final metric cutoffs. To run a design in prefilter calibration mode, use the following example:
+
+DEMO: the following scripts can be run on a protein-DNA complex PDB, such as those included in the supplementary data files. Expected run time is approximately 10s - 2 min depending on settings (using Rosetta relax will take ~ 2 min per PDB). 
 
 ```
 python  {full_path_to_mpnn_design.py} -silent {silent} \

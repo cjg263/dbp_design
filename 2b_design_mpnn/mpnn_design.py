@@ -19,9 +19,6 @@ with open(path_file,'r') as f_in:
         path = line.split(',')[1].rstrip()
         paths_dict[key] = path
 
-# import silent tools
-sys.path.insert( 0, paths_dict['silent_tools_path'])
-import silent_tools
 
 # Build a PyRosetta with Python3.9
 # Will it work?
@@ -29,6 +26,9 @@ sys.path.insert( 0, paths_dict['pyrosetta_path'] )
 
 from pyrosetta import *
 from pyrosetta.rosetta import *
+from pyrosetta.rosetta.core.io.pdb import create_pdb_contents_from_sfr
+from pyrosetta.rosetta.core.io.pose_to_sfr import PoseToStructFileRepConverter
+
 
 import numpy as np
 from collections import defaultdict
@@ -49,21 +49,23 @@ import tempfile
 import torch
 
 # import function for counting hydrogen bonds
-import count_hbond_types
+import count_hbond_types, compactness_filter
 
 # import util for loading rosetta movers
 sys.path.append(prog_dir)
 import xml_loader
 
-# import custom MPNN utilities
-sys.path.append(prog_dir +  '/design/' )
-import generate_sequences_s2s_chain as mpnn_util
+sys.path.insert( 0, paths_dict['silent_tools_path'])
+import silent_tools 
 
-# initiate pyrosetta
+#sys.path.append( paths_dict['ligand_mpnn_path'])
+import run #from run import main, get_argument_parser
+
+
 init( "-mute all -beta_nov16 -in:file:silent_struct_type binary" +
-    " -holes:dalphaball /home/norn/software/DAlpahBall/DAlphaBall.gcc" +
+    " -holes:dalphaball /software/rosetta/DAlphaBall.gcc"  +
     " -use_terminal_residues true -mute basic.io.database core.scoring" +
-    f"@{prog_dir}/flags_and_weights/RM8B.flags" )
+    f"@{prog_dir}/flags_and_weights/RM8B.flags")
 
 
 def cmd(command, wait=True):
@@ -94,16 +96,19 @@ def feature_check( input_val ):
 # Parse Arguments
 #################################
 
-# for connections=64 use this checkpoint: /projects/ml/struc2seq/data_for_complexes/training_scripts/models/multi_m3_random_loss_bias_var/checkpoints/epoch32_step347928.pt
-
 parser = argparse.ArgumentParser()
 parser.add_argument( "-silent", type=str, default="", help='The name of a silent file to run.' )
+parser.add_argument( "-pdb", type=str, default="", help='Single PDB file.' )
 parser.add_argument( "-pdb_folder", type=str, default="", help='Folder if pdbs.' )
 parser.add_argument( "-silent_tag", type=str, default = '', help="Input silent tag")
 parser.add_argument( "-silent_tag_file", type=str, default = '', help="File containing tags to design in silent")
 parser.add_argument( "-silent_tag_prefix", type=str, default = '', help="Prefix for silent tag outputs")
-parser.add_argument( "-seq_per_struct", type=int, default=10, help='Number of MPNN sequences that will be produced' )
-parser.add_argument( "-checkpoint_path", type=str, default=f'{paths_dict["mpnn_model_checkpoint"]}' )
+parser.add_argument( "-silent_output_path_prefix", type=str, default = 'out.silent', help='path of silent output file')
+parser.add_argument( "-seq_per_struct", type=int, default=1, help='Number of MPNN sequences that will be produced' )
+parser.add_argument( "-checkpoint_path", type=str, default=f'{paths_dict["mpnn_model_checkpoint"]}')
+parser.add_argument( "-path_to_model_weights_sc", type=str, default=f'{paths_dict["sc_checkpoint_path"]}', help="Path to model weights folder;")
+parser.add_argument( "-model_name_sc", type=str, default="v_32_005", help="Side Chain LigandMPNN model name: v_32_005")
+parser.add_argument( "-mpnn_sidechain_packing", type=int, default=1, help="1 - to pack side chains, 0 - do not")
 parser.add_argument( "-pssm_type", type=str, default=".2.20.pssm", help="Type of pssm to use." )
 parser.add_argument( "-pssm_multi", type=float, default=0.0, help="A value between [0.0, 1.0], 0.0 means do not use pssm, 1.0 ignore MPNN predictions")
 parser.add_argument( "-pssm_threshold", type=float, default=0.0, help="A value between -inf + inf to restric per position AAs")
@@ -115,8 +120,12 @@ parser.add_argument( "-ddg_cutoff", type=float, default=100, help='The threshold
 parser.add_argument( "-num_connections", type=int, default=48, help='Number of neighbors each residue is connected to, default 30, maximum 64, higher number leads to better interface design but will cost more to run the model.' )
 parser.add_argument( "-freeze_hbond_resis", type=int, default=0, help='By default (0), we allow redesign of base contacting hbond resis. If 1, MPNN will freeze them.' )
 parser.add_argument( "-freeze_resis", type=str, default='', help="Residues to freeze in MPNN design.")
+parser.add_argument( "-freeze_seed_resis", type=int, default=0, help="Freeze seed resis")
+parser.add_argument( "-init_seq", type=str, default='', help="Path to initial sequence for each tag.")
 parser.add_argument( "-freeze_hotspot_resis", type=int, default=0, help="Freeze hotspot resis, default 0")
 parser.add_argument( "-run_predictor", type=int, default=0, help='By default (0), will go directly to relax. If 1, will send first to predictor' )
+parser.add_argument( "-run_mpnn_sc_predictor", type=int, default=0, help='By default (0), will go directly to relax. If 1, will send first to predictor' )
+parser.add_argument( "-analysis_only", type=int, default=0, help="Setting to 1 will only analyze the input complex")
 parser.add_argument( "-run_relax", type=int, default=0, help='By default (0), will not relax. If 1, will relax sequence.' )
 parser.add_argument( "-relax_input", type=int, default=0, help='By default (0), will not relax input. If 1, will relax input sequence.' )
 parser.add_argument( "-fast_design", type=int, default=0, help='By default (0), will not run FD. If 1, will generate PSSM from MPNN seqs and run FD.' )
@@ -124,21 +133,61 @@ parser.add_argument( "-prefilter_eq_file", type=str, default = None, help="Sigmo
 parser.add_argument( "-prefilter_mle_cut_file", type=str, default = None, help="MLE cutoff for prefiltering")
 parser.add_argument( "-hbond_energy_cut", type=float, default=-0.5,help="hbond energy cutoff")
 parser.add_argument( "-bb_phos_cutoff", type=int, default=0, help="# of required backbone phosphate contacts to continue to design. Default 0.")
+parser.add_argument( "-net_charge_cutoff", type=int, default=1000, help="Maximum net charge to continue to design. Default 0.")
+parser.add_argument( "-preempt_bb_on_charge", type=int, default=0, help="Preempt MPNN design of backbone by net charge of trial run. Default 0.")
+parser.add_argument( "-compactness_prefilter", type=int, default=0, help="# of required backbone phosphate contacts to continue to design. Default 0.")
 parser.add_argument( "-require_motif_in_rec_helix", type=int, default = 0, help="Default 0. If 1, will require motif in recognition helix.")
 parser.add_argument( "-require_rifres_in_rec_helix", type=int, default = 0, help="Default 0. If 1, will require motif in recognition helix.")
 parser.add_argument( "-n_per_silent", type=int, default=0, help="Number of random tags to design per silent. 0 for all tags.")
 parser.add_argument( "-start_num", type=int, default=0, help="Numbering of first design. Default = 0.")
-
+parser.add_argument( "-out_path", type=str, default='out.csv', help='path to write dataframe')
+parser.add_argument( "-task_id", type=int, default=1, help='Slurm Array Task ID')
+parser.add_argument( "-n_chunks", type=int, default=1, help='Number of chunks to divide up the job')
+parser.add_argument( "-ignore_checkpointing", default=False, action='store_true', help='Use this flag if you want to force run on structures even if they show up in the checkpoint file')
 
 args = parser.parse_args( sys.argv[1:] )
 silent = args.__getattribute__("silent")
 freeze_hbond_resis = args.__getattribute__("freeze_hbond_resis")
 
-pack_no_design, softish_min, hard_min, fast_relax, ddg_filter, cms_filter, vbuns_filter, sbuns_filter, net_charge_filter, net_charge_over_sasa_filter = xml_loader.fast_relax(protocols,f'{prog_dir}/flags_and_weights/RM8B_torsional.wts',paths_dict['psi_pred_exe'])
+pack_no_design, softish_min, hard_min, fast_relax, ddg_filter, cms_filter, vbuns_filter, sbuns_filter, net_charge_filter, net_charge_over_sasa_filter = xml_loader.fast_relax(protocols,f'{prog_dir}/flags_and_weights/RM8B_torsional.wts',paths_dict['psi_pred_exe'],f'{prog_dir}/flags_and_weights/no_ref.rosettacon2018.beta_nov16_constrained.txt')
 
-silent_out = f"{os.getcwd()}/out.silent"
-
+silent_out = args.silent_output_path_prefix + f'_{args.task_id}.silent'
 sfxn = core.scoring.ScoreFunctionFactory.create_score_function(f'{prog_dir}/flags_and_weights/RM8B_torsional.wts')
+
+
+def calculate_net_charge(sequence):
+    # Define the charge of each amino acid
+    amino_acid_charges = {
+        'A': 0,  # Alanine (uncharged)
+        'R': 1,  # Arginine (positive)
+        'N': 0,  # Asparagine (uncharged)
+        'D': -1,  # Aspartic acid (negative)
+        'C': 0,  # Cysteine (uncharged)
+        'E': -1,  # Glutamic acid (negative)
+        'Q': 0,  # Glutamine (uncharged)
+        'G': 0,  # Glycine (uncharged)
+        'H': 0,  # Histidine (positive)
+        'I': 0,  # Isoleucine (uncharged)
+        'L': 0,  # Leucine (uncharged)
+        'K': 1,  # Lysine (positive)
+        'M': 0,  # Methionine (uncharged)
+        'F': 0,  # Phenylalanine (uncharged)
+        'P': 0,  # Proline (uncharged)
+        'S': 0,  # Serine (uncharged)
+        'T': 0,  # Threonine (uncharged)
+        'W': 0,  # Tryptophan (uncharged)
+        'Y': 0,  # Tyrosine (uncharged)
+        'V': 0,  # Valine (uncharged)
+    }
+
+    # Initialize net charge to 0
+    net_charge = 0
+
+    # Calculate the net charge for the sequence
+    for aa in sequence:
+        net_charge += amino_acid_charges.get(aa, 0)
+
+    return net_charge
 
 def aln2pssm(aln_arr, pssm_out, tmp_dirname):
     """
@@ -184,6 +233,7 @@ def msa2pssm(msa, tmp_dirname):
     pssm = read_pssm(pssm_path)
 
     return pssm
+
 
 def save_pssm(pssm_vector_lines, out_f):
     out_str = ''
@@ -250,11 +300,11 @@ def N_to_AA(x):
 
 # I/O Functions
 
-def add2silent( pose, tag, sfd_out ):
+def add2silent( pose, tag, sfd_out, silent_path):
     struct = sfd_out.create_SilentStructOP()
     struct.fill_struct( pose, tag )
     sfd_out.add_structure( struct )
-    sfd_out.write_silent_struct( struct, "out.silent" )
+    sfd_out.write_silent_struct( struct, silent_path)
 
 # End I/O Functions
 
@@ -262,143 +312,6 @@ def my_rstrip(string, strip):
     if (string.endswith(strip)):
         return string[:-len(strip)]
     return string
-
-def init_seq_optimize_model():
-
-    hidden_feat_dim = 128
-    num_layers = 3
-
-    model = mpnn_util.ProteinMPNN(num_letters=21, node_features=hidden_feat_dim, edge_features=hidden_feat_dim, hidden_dim=hidden_feat_dim, num_encoder_layers=num_layers,num_decoder_layers=num_layers, augment_eps=args.augment_eps, k_neighbors=args.num_connections)
-    model.to(mpnn_util.device)
-    print('Number of model parameters: {}'.format(sum([p.numel() for p in model.parameters()])))
-    checkpoint = torch.load(args.checkpoint_path, map_location=torch.device(mpnn_util.device))
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model.eval()
-
-    return model
-
-def parse_PDB_biounits(x, atoms=['N','CA','C'], chain=None,lig_params=[]):
-  '''
-  input:  x = PDB filename
-          atoms = atoms to extract (optional)
-  output: (length, atoms, coords=(x,y,z)), sequence
-  '''
-
-  alpha_1 = list("ARNDCQEGHILKMFPSTWYV-atcgdryuJ")
-  states = len(alpha_1)
-  alpha_3 = ['ALA','ARG','ASN','ASP','CYS','GLN','GLU','GLY','HIS','ILE',
-             'LEU','LYS','MET','PHE','PRO','SER','THR','TRP','TYR','VAL','GAP',
-              ' DA', ' DT', ' DC', ' DG',  '  A',  '  U',  '  C',  '  G',
-             'LIG']
-
-  aa_1_N = {a:n for n,a in enumerate(alpha_1)}
-  aa_3_N = {a:n for n,a in enumerate(alpha_3)}
-  aa_N_1 = {n:a for n,a in enumerate(alpha_1)}
-  aa_1_3 = {a:b for a,b in zip(alpha_1,alpha_3)}
-  aa_3_1 = {b:a for a,b in zip(alpha_1,alpha_3)}
-
-  lig_to_atms = {}
-  if len(lig_params) > 0:
-    for lig_param in lig_params:
-        lig_to_atms.update(parse_extra_res_fa_param(lig_param))
-  lig_names = list(lig_to_atms.keys())
-
-  def AA_to_N(x):
-    # ["ARND"] -> [[0,1,2,3]]
-    x = np.array(x);
-    if x.ndim == 0: x = x[None]
-    return [[aa_1_N.get(a, states-1) for a in y] for y in x]
-
-  def N_to_AA(x):
-    # [[0,1,2,3]] -> ["ARND"]
-    x = np.array(x);
-    if x.ndim == 1: x = x[None]
-    return ["".join([aa_N_1.get(a,"-") for a in y]) for y in x]
-
-  xyz,seq,min_resn,max_resn = {},{},1e6,-1e6
-  for line in open(x,"rb"):
-    line = line.decode("utf-8","ignore").rstrip()
-
-    if line[:6] == "HETATM" and line[17:17+3] == "MSE":
-      line = line.replace("HETATM","ATOM  ")
-      line = line.replace("MSE","MET")
-
-    #Ligands will start with HETATM but for noncanonial stuff (may start with ATOM ?)? GRL
-    #Currently one chain should be just the ligand itself.
-    parse_atm_line = False
-    if len(lig_names) > 0 and line[17:20] in lig_names:
-        parse_atm_line = True
-    if line[:4] == "ATOM":
-        parse_atm_line = True
-
-    if (parse_atm_line):
-      ch = line[21:22]
-      if ch == chain or chain is None:
-        atom = line[12:12+4].strip()
-        resi = line[17:17+3]
-        resn = line[22:22+5].strip()
-        x,y,z = [float(line[i:(i+8)]) for i in [30,38,46]]
-
-        if resn[-1].isalpha():
-            resa,resn = resn[-1],int(resn[:-1])-1
-        else:
-            resa,resn = "",int(resn)-1
-#         resn = int(resn)
-        if resn < min_resn:
-            min_resn = resn
-        if resn > max_resn:
-            max_resn = resn
-        if resn not in xyz:
-            xyz[resn] = {}
-        if resa not in xyz[resn]:
-            xyz[resn][resa] = {}
-        if resn not in seq:
-            seq[resn] = {}
-        #for alternative coords
-        if resa not in seq[resn]:
-            seq[resn][resa] = resi
-        if atom not in xyz[resn][resa]:
-          xyz[resn][resa][atom] = np.array([x,y,z])
-
-  # convert to numpy arrays, fill in missing values
-  seq_,xyz_,atype_ = [],[],[]
-  is_lig_chain = False
-  try:
-      resn_to_ligName = {}
-      for resn in range( min_resn,max_resn+1):
-        if resn in seq:
-          #20: not in the list, treat as gap
-          for k in sorted(seq[resn]):
-              resi = seq[resn][k]
-              if resi in lig_names:
-                  resn_to_ligName[resn] = resi
-                  is_lig_chain = True
-                  seq_.append(aa_3_N.get('LIG',29)) ###GRL:hard-coding 29 ok?
-              else:
-                  seq_.append(aa_3_N.get(seq[resn][k],20))
-        else: seq_.append(20)
-        #
-        #
-        if is_lig_chain:
-            #Get new atoms list just for the ligand as defined in the params file
-            atoms = list(lig_to_atms[resn_to_ligName[resn]].keys())
-        #
-        #Ligand atoms in the same order with xyz_ (matching atom name -> atype as defined in the params file)
-        if resn in xyz:
-          for k in sorted(xyz[resn]):
-            for atom in atoms:
-              if atom in xyz[resn][k]: xyz_.append(xyz[resn][k][atom])
-              else: xyz_.append(np.full(3,np.nan))
-        else:
-          for atom in atoms: xyz_.append(np.full(3,np.nan))
-        #
-        if is_lig_chain:
-            lig_atm_d = lig_to_atms[resn_to_ligName[resn]]
-            for atom in atoms:
-                atype_.append(lig_atm_d[atom])
-      return np.array(xyz_).reshape(-1,len(atoms),3), N_to_AA(np.array(seq_)), np.array(atype_)
-  except TypeError:
-      return 'no_chain', 'no_chain', 'no_chain'
 
 def thread_mpnn_seq( pose, binder_seq ):
     rsd_set = pose.residue_type_set_for_pose( core.chemical.FULL_ATOM_t )
@@ -411,177 +324,8 @@ def thread_mpnn_seq( pose, binder_seq ):
 
     return pose
 
-def generate_seqopt_features( path_to_pdb, extra_res_param={}):
+def generate_seqopt_features(pdbstring, extra_res_param={}):
     # There's a lot of extraneous info in here for the ligand MPNN--didn't want to delete in case it breaks anything.
-
-    ref_atype_to_element = {'CNH2': 'C', 'COO': 'C', 'CH0': 'C', 'CH1': 'C', 'CH2': 'C', 'CH3': 'C', 'aroC': 'C', 'Ntrp': 'N', 'Nhis': 'N', 'NtrR': 'N', 'NH2O': 'N', 'Nlys': 'N', 'Narg': 'N', 'Npro': 'N', 'OH': 'O', 'OW': 'O', 'ONH2': 'O', 'OOC': 'O', 'Oaro': 'O', 'Oet2': 'O', 'Oet3': 'O', 'S': 'S', 'SH1': 'S', 'Nbb': 'N', 'CAbb': 'C', 'CObb': 'C', 'OCbb': 'O', 'Phos': 'P', 'Pbb': 'P', 'Hpol': 'H', 'HS': 'H', 'Hapo': 'H', 'Haro': 'H', 'HNbb': 'H', 'Hwat': 'H', 'Owat': 'O', 'Opoint': 'O', 'HOH': 'O', 'Bsp2': 'B', 'F': 'F', 'Cl': 'CL', 'Br': 'BR', 'I': 'I', 'Zn2p': 'ZN', 'Co2p': 'CO', 'Cu2p': 'CU', 'Fe2p': 'FE', 'Fe3p': 'FE', 'Mg2p': 'MG', 'Ca2p': 'CA', 'Pha': 'P', 'OPha': 'O', 'OHha': 'O', 'Hha': 'H', 'CO3': 'C', 'OC3': 'O', 'Si': 'Si', 'OSi': 'O', 'Oice': 'O', 'Hice': 'H', 'Na1p': 'NA', 'K1p': 'K', 'He': 'HE', 'Li': 'LI', 'Be': 'BE', 'Ne': 'NE', 'Al': 'AL', 'Ar': 'AR', 'Sc': 'SC', 'Ti': 'TI', 'V': 'V', 'Cr': 'CR', 'Mn': 'MN', 'Ni': 'NI', 'Ga': 'GA', 'Ge': 'GE', 'As': 'AS', 'Se': 'SE', 'Kr': 'KR', 'Rb': 'RB', 'Sr': 'SR', 'Y': 'Y', 'Zr': 'ZR', 'Nb': 'NB', 'Mo': 'MO', 'Tc': 'TC', 'Ru': 'RU', 'Rh': 'RH', 'Pd': 'PD', 'Ag': 'AG', 'Cd': 'CD', 'In': 'IN', 'Sn': 'SN', 'Sb': 'SB', 'Te': 'TE', 'Xe': 'XE', 'Cs': 'CS', 'Ba': 'BA', 'La': 'LA', 'Ce': 'CE', 'Pr': 'PR', 'Nd': 'ND', 'Pm': 'PM', 'Sm': 'SM', 'Eu': 'EU', 'Gd': 'GD', 'Tb': 'TB', 'Dy': 'DY', 'Ho': 'HO', 'Er': 'ER', 'Tm': 'TM', 'Yb': 'YB', 'Lu': 'LU', 'Hf': 'HF', 'Ta': 'TA', 'W': 'W', 'Re': 'RE', 'Os': 'OS', 'Ir': 'IR', 'Pt': 'PT', 'Au': 'AU', 'Hg': 'HG', 'Tl': 'TL', 'Pb': 'PB', 'Bi': 'BI', 'Po': 'PO', 'At': 'AT', 'Rn': 'RN', 'Fr': 'FR', 'Ra': 'RA', 'Ac': 'AC', 'Th': 'TH', 'Pa': 'PA', 'U': 'U', 'Np': 'NP', 'Pu': 'PU', 'Am': 'AM', 'Cm': 'CM', 'Bk': 'BK', 'Cf': 'CF', 'Es': 'ES', 'Fm': 'FM', 'Md': 'MD', 'No': 'NO', 'Lr': 'LR', 'SUCK': 'Z', 'REPL': 'Z', 'REPLS': 'Z', 'HREPS': 'Z', 'VIRT': 'X', 'MPct': 'X', 'MPnm': 'X', 'MPdp': 'X', 'MPtk': 'X'}
-    chem_elements = ['C','N','O','P','S','AC','AG','AL','AM','AR','AS','AT','AU','B','BA','BE','BI','BK','BR','CA','CD','CE','CF','CL','CM','CO','CR','CS','CU','DY','ER','ES','EU','F','FE','FM','FR','GA','GD','GE','H','HE','HF','HG','HO','I','IN','IR','K','KR','LA','LI','LR','LU','MD','MG','MN','MO','NA','NB','ND','NE','NI','NO','NP','OS','PA','PB','PD','PM','PO','PR','PT','PU','RA','RB','RE','RH','RN','RU','SB','SC','SE','SM','SN','SR','Si','TA','TB','TC','TE','TH','TI','TL','TM','U','V','W','X','XE','Y','YB','Z','ZN','ZR']
-    ref_atypes_dict = dict(zip(chem_elements, range(len(chem_elements))))
-
-
-
-    pdb_dict_list = []
-    c = 0
-    dna_list = 'atcg'
-    rna_list = 'dryu'
-    protein_list = 'ARNDCQEGHILKMFPSTWYVX'
-    protein_list_check = 'ARNDCQEGHILKMFPSTWYV'
-    k_DNA = 10
-    ligand_dumm_list = 'J'
-
-    dna_rna_dict = {
-    "a" : ['P', 'OP1', 'OP2', "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "C1'", 'N1', 'C2', 'N3', 'C4', 'C5', 'C6', 'N7', 'C8','N9', "", ""],
-    "t" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "C1'", "N1", "C2", "O2", "N3", "C4", "C5", "C6", "C7", "", "", ""],
-    "c" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "C1'", "N1", "C2", "O2", "N3", "C4", "N4", "C5", "C6", "", "", ""],
-    "g" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "C1'", "N1", "C2", "N2", "N3", "C4", "C5", "C6", "N7", "C8", "N9", ""],
-    "d" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "O2'", "C1'", "N1", "C2", "N3", "C4", "C5", "C6", "N7", "C8", "N9", ""],
-    "r" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "O2'", "C1'", "N1", "C2", "O2", "N3", "C4", "O4", "C5", "C6", "", ""],
-    "y" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "O2'", "C1'", "N1", "C2", "O2", "N3", "C4", "N4", "C5", "C6", "", ""],
-    "u" : ["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "O2'", "C1'", "N1", "C2", "N2", "N3", "C4", "C5", "C6", "N7", "C8", "N9"],
-    "X" : 22*[""]}
-
-    dna_rna_atom_types = np.array(["P", "OP1", "OP2", "O5'", "C5'", "C4'", "O4'", "C3'", "O3'", "C2'", "O2'", "C1'", "N1", "C2", "N2", "N3", "C4", "C5", "C6", "N7", "C8", "N9", "O4", "O2", "N4", "C7", ""])
-
-    idxAA_22_to_27 = np.zeros((9, 22), np.int32)
-    for i, AA in enumerate(dna_rna_dict.keys()):
-        for j, atom in enumerate(dna_rna_dict[AA]):
-            idxAA_22_to_27[i,j] = int(np.argwhere(atom==dna_rna_atom_types)[0][0])
-    ### \end This was just a big copy-paste from the training script ###
-
-    atoms = ['N', 'CA', 'C', 'O', 'CB', 'CG', 'CG1', 'CG2', 'OG', 'OG1', 'SG', 'CD',
-        'CD1', 'CD2', 'ND1', 'ND2', 'OD1', 'OD2', 'SD', 'CE', 'CE1', 'CE2', 'CE3',
-        'NE', 'NE1', 'NE2', 'OE1', 'OE2', 'CH2', 'NH1', 'NH2', 'OH', 'CZ', 'CZ2',
-        'CZ3', 'NZ']  # These are the 36 atom types mentioned in Justas's script
-
-    all_atom_types = atoms + list(dna_rna_atom_types)
-    init_alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G','H', 'I', 'J','K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T','U', 'V','W','X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g','h', 'i', 'j','k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't','u', 'v','w','x', 'y', 'z']
-    extra_alphabet = [str(item) for item in list(np.arange(300))]
-    chain_alphabet = init_alphabet# + extra_alphabet
-
-    biounit_names = [path_to_pdb]
-    for biounit in biounit_names:
-        my_dict = {}
-        s = 0
-        concat_seq = ''
-        concat_seq_DNA = ''
-        concat_N = []
-        concat_CA = []
-        concat_C = []
-        concat_O = []
-        concat_mask = []
-        coords_dict = {}
-        visible_list = []
-        chain_list = []
-        Cb_list = []
-        P_list = []
-        dna_atom_list = []
-        dna_atom_mask_list = []
-        #
-        ligand_atom_list = []
-        ligand_atype_list = []
-        ligand_total_length = 0
-        #
-        #Check if ligand params file is given
-        lig_params = []
-        if biounit in list(extra_res_param.keys()):
-            lig_params = extra_res_param[biounit]
-
-        for letter in chain_alphabet:
-#                 print(f'started parsing {letter}')
-            xyz, seq, atype = parse_PDB_biounits(biounit, atoms = all_atom_types, chain=letter, lig_params=lig_params)
-            # print("chain_seq", seq)
-#             print(f'finished parsing {letter}')
-            if type(xyz) != str:
-                protein_seq_flag = any([(item in seq[0]) for item in protein_list_check])
-                dna_seq_flag = any([(item in seq[0]) for item in dna_list])
-                rna_seq_flag = any([(item in seq[0]) for item in rna_list])
-                lig_seq_flag = any([(item in seq[0]) for item in ligand_dumm_list])
-#                     print(protein_seq_flag, dna_seq_flag, rna_seq_flag, lig_seq_flag)
-
-                if protein_seq_flag: xyz, seq, atype = parse_PDB_biounits(biounit, atoms = atoms, chain=letter)
-                elif (dna_seq_flag or rna_seq_flag): xyz, seq, atype = parse_PDB_biounits(biounit, atoms = list(dna_rna_atom_types), chain=letter)
-                elif (lig_seq_flag): xyz,seq, atype = parse_PDB_biounits(biounit, atoms=[], chain=letter, lig_params=lig_params)
-
-                if protein_seq_flag:
-                    my_dict['seq_chain_'+letter]=seq[0]
-                    concat_seq += seq[0]
-                    chain_list.append(letter)
-                    all_atoms = np.array(xyz) #[L, 14, 3] # deleted res index on xyz--I think this was useful when there were batches of structures at once?
-                    b = all_atoms[:,1] - all_atoms[:,0]
-                    c = all_atoms[:,2] - all_atoms[:,1]
-                    a = np.cross(b, c, -1)
-                    Cb = -0.58273431*a + 0.56802827*b - 0.54067466*c + all_atoms[:,1] #virtual
-                    Cb_list.append(Cb)
-                    coords_dict_chain = {}
-                    coords_dict_chain['all_atoms_chain_'+letter]=xyz.tolist()
-                    my_dict['coords_chain_'+letter]=coords_dict_chain
-                elif dna_seq_flag or rna_seq_flag: # This section is important for moving from 22-atom representation to the 27-atom representation...unless it's already in 27 format??
-                    
-                    seq_ = ''.join(list(np.array(list(seq))[0,])) # Edited this section on 1/10/23 to delete gaps when residues are not numbered sequentially
-                    all_atoms = np.array(xyz)
-                    if len(seq_.replace('-','')) == len(all_atoms): # could be expanded to include things besides '-' gaps
-                        pass
-                    else:
-                        all_atoms = np.array([all_atoms[i] for i, elem in enumerate(seq_) if elem in list(dna_rna_dict.keys())]) # if elem in != '-'
-                        seq_ = ''.join([seq_[i] for i, elem in enumerate(seq_) if elem in list(dna_rna_dict.keys())])
-                        
-                    P_list.append(all_atoms[:,0])
-                    all_atoms_ones = np.ones((all_atoms.shape[0], 22)) # I believe all_atoms.shape[0] is supposed to be the length of the sequence
-                    concat_seq_DNA += seq_
-                    all_atoms27_mask = np.zeros((len(seq_), 27))
-                    # print(seq_)
-                    idx = np.array([idxAA_22_to_27[np.argwhere(AA==np.array(list(dna_rna_dict.keys())))[0][0]] for AA in seq_])
-                    np.put_along_axis(all_atoms27_mask, idx, all_atoms_ones, 1)
-                    dna_atom_list.append(all_atoms) # was all_atoms27, but all_atoms is already in that format!!
-                    dna_atom_mask_list.append(all_atoms27_mask)
-                elif lig_seq_flag:
-                    temp_atype = -np.ones(len(atype))
-                    for k_, ros_type in enumerate(atype):
-                        if ros_type in list(ref_atype_to_element):
-                            temp_atype[k_] = ref_atypes_dict[ref_atype_to_element[ros_type]]
-                        else:
-                            temp_atype[k_] = ref_atypes_dict['X']
-                    all_atoms = np.array(xyz)
-                    ligand_atype = np.array(temp_atype)
-                    if (1-np.isnan(all_atoms)).sum() != 0:
-                        tmp_idx = np.argwhere(1-np.isnan(all_atoms[0,].mean(-1))==1.0)[-1][0] + 1
-                        ligand_atom_list.append(all_atoms[:tmp_idx,:])
-                        ligand_atype_list.append(ligand_atype[:tmp_idx])
-                        ligand_total_length += tmp_idx
-
-
-        if len(P_list) > 0:
-            Cb_stack = np.concatenate(Cb_list, 0) #[L, 3]
-            P_stack = np.concatenate(P_list, 0) #[K, 3]
-            dna_atom_stack = np.concatenate(dna_atom_list, 0)
-            dna_atom_mask_stack = np.concatenate(dna_atom_mask_list, 0)
-
-            D = np.sqrt(((Cb_stack[:,None,:]-P_stack[None,:,:])**2).sum(-1) + 1e-7)
-            idx_dna = np.argsort(D,-1)[:,:k_DNA] #top 10 neighbors per residue
-            dna_atom_selected = dna_atom_stack[idx_dna]
-            dna_atom_mask_selected = dna_atom_mask_stack[idx_dna]
-            my_dict['dna_context'] = dna_atom_selected[:,:,:-1,:].tolist()
-            my_dict['dna_context_mask'] = dna_atom_mask_selected[:,:,:-1].tolist()
-        else:
-            my_dict['dna_context'] = 'no_DNA'
-            my_dict['dna_context_mask'] = 'no_DNA'
-        if ligand_atom_list:
-            ligand_atom_stack = np.concatenate(ligand_atom_list, 0)
-            ligand_atype_stack = np.concatenate(ligand_atype_list, 0)
-            my_dict['ligand_context'] = ligand_atom_stack.tolist()
-            my_dict['ligand_atype'] = ligand_atype_stack.tolist()
-        else:
-            my_dict['ligand_context'] = 'no_ligand'
-            my_dict['ligand_atype'] = 'no_ligand'
-        my_dict['ligand_length'] = int(ligand_total_length)
-        #
-        fi = biounit.rfind("/")
-        my_dict['name']=biounit[(fi+1):-4]
-        my_dict['num_of_chains'] = s
-        my_dict['seq'] = concat_seq
-        if s < len(chain_alphabet):
-            pdb_dict_list.append(my_dict)
-            c+=1
     return pdb_dict_list
 
 def get_seq_from_pdb( pdb_fn, slash_for_chainbreaks ):
@@ -606,26 +350,35 @@ def get_seq_from_pdb( pdb_fn, slash_for_chainbreaks ):
         seq += to1letter[resName]
     return my_rstrip( seq, '/' )
 
-def sequence_optimize( pdbfile, chains, model, fixed_positions_dict, pssm_dict=None ):
+def sequence_optimize(pdbstring, chains, fixed_positions_dict, num_seqs, pssm_dict=None ):
 
     t0 = time.time()
 
-    # sequence = get_seq_from_pdb( pdbfile, False )
+    ## get mpnn args
+    argparser = run.get_argument_parser()
+    mpnn_args = argparser.parse_args([])
+    mpnn_args.model_type="ligand_mpnn"
+    mpnn_args.seed=111
+    mpnn_args.temperature=args.temperature
+    mpnn_args.pdb_input_as_string=pdbstring
+    mpnn_args.pdb_string_name='temptag'
+    mpnn_args.batch_size=min( 1, args.seq_per_struct ) 
+    mpnn_args.number_of_batches=args.seq_per_struct // mpnn_args.batch_size
+    mpnn_args.ligand_mpnn_use_side_chain_context=1 
+    mpnn_args.pack_side_chains=args.mpnn_sidechain_packing 
+    mpnn_args.fixed_residues=fixed_positions_dict
+    mpnn_args.checkpoint_ligand_mpnn=paths_dict['mpnn_model_checkpoint']
+    mpnn_args.checkpoint_path_sc=paths_dict['sc_checkpoint_path']
+    mpnn_args.return_output_no_save=1 
+    return_dict = run.main(mpnn_args,paths_dict)
+    designed_dict = return_dict["temptag"]["designs"]
+    
+    # Currently sequences, scores, and pdbs as string as output
+    sequences_etc = [ ( designed_dict[i]['sequence'],designed_dict[i]['overall_confidence'],designed_dict[i]['backbone_PDB_string'] ) for i in designed_dict]
 
-    feature_dict = generate_seqopt_features( pdbfile )
+    print( f"MPNN generated {len(sequences_etc)} sequences in {int( time.time() - t0 )} seconds" )
 
-    arg_dict = mpnn_util.set_default_args( args.seq_per_struct, decoding_order='random' )
-    arg_dict['temperature'] = args.temperature
-
-    # in a world where the binder is first and is the only chain to redesign, this is fine
-    masked_chains = [ chains[0] ]
-    visible_chains = []
-
-    sequences = mpnn_util.generate_sequences( model, feature_dict, arg_dict, masked_chains, visible_chains, args, fixed_positions_dict=fixed_positions_dict, pssm_dict=pssm_dict )
-
-    print( f"MPNN generated {len(sequences)} sequences in {int( time.time() - t0 )} seconds" )
-
-    return sequences
+    return sequences_etc
 
 def get_final_dict(score_dict, string_dict):
     print(score_dict)
@@ -695,11 +448,11 @@ def swap_mut_string(tag, mut_string, og_struct):
 
     return '\n'.join(outlines)
 
-def add2silent( pose, tag, sfd_out ):
-    struct = sfd_out.create_SilentStructOP()
-    struct.fill_struct( pose, tag )
-    sfd_out.add_structure( struct )
-    sfd_out.write_silent_struct( struct, "out.silent" )
+# def add2silent( pose, tag, sfd_out ):
+#     struct = sfd_out.create_SilentStructOP()
+#     struct.fill_struct( pose, tag )
+#     sfd_out.add_structure( struct )
+#     sfd_out.write_silent_struct( struct, "out.silent" )
 
 def delete_file_list( filelist ):
     for f in filelist: os.remove( f )
@@ -737,10 +490,91 @@ def count_backbone_phosphate_contacts(pose, tag, df_scores, args) :
     print(f"n_phosphate_contacts: {len(backbone_phosphate_contacts)}")
     return df_scores
 
-def count_hbonds_protein_dna(pose) :
+def count_base_interactions(pose, tag, df_scores, args, hydrophobic_distances = [4,5,6]) :
+    '''
+    Takes in a pose and returns the number of C and T bases with hydrophobic contacts.
+    '''
+    pose_hb = pyrosetta.rosetta.core.scoring.hbonds.HBondSet(pose)
+    pose_hb = pose.get_hbonds()
+    DNA_base_names = ['ADE','GUA','THY','CYT', '5IU', 'BRU', 'RGU', 'RCY', 'RAD', 'URA']
+    DNA_bases = ['ADE','GUA','THY','CYT']
+    DNA_names3 = ['DA','DG','DT','DC']
+
+    # aa_index = []
+    dna_index = []
+
+    dna_atoms_w_hbonds = []
+
+    for hbond_num in range (1,pose_hb.nhbonds()+1):
+        hbond = str(pose_hb.hbond(hbond_num))
+
+        ## Exclude anything that has a backbone contact or that doesn't have both a protein and a dna interaction
+        if ('dna' in hbond and 'protein' in hbond) and 'backbone' not in hbond: pass
+        else: continue
+
+        hbond_str = hbond.split('acc:')
+        if 'dna' in hbond_str[0]: hbond_str = hbond_str[0].strip()
+        else: hbond_str = hbond_str[1].strip()
+
+        dna_hbond_parts = hbond_str.split(' ')
+
+        dna_atoms_w_hbonds.append((dna_hbond_parts[1], dna_hbond_parts[2]))
+
+    # The set part guarantees we don't double-count multiple hbonds to one atom--one satisfaction of an atom is sufficient
+    base_specific_hbond_by_atom_count = len(set(dna_atoms_w_hbonds))
+
+    all_protein_C_atoms = []
+
+    # Gather all hydrophobic carbon atom coordinates in protein; gather DNA residue indices
+    for residue in range(1,pose.total_residue()+1):
+        current_residue = pose.residue(residue)
+        if current_residue.is_protein() and current_residue.name1() != 'Z':
+            # aa_index.append(residue)
+            for i, aa_atom in enumerate(current_residue.atoms()):
+                atom_name_rep = current_residue.atom_name(i+1).strip()
+                if (current_residue.name3() in ['GLN','GLU'] and atom_name_rep == 'CD') or \
+                   (current_residue.name3() in ['ASN','ASP'] and atom_name_rep == 'CG') or \
+                   (current_residue.name3() in ['ARG'] and atom_name_rep == 'CZ'):
+                    continue # Didn't seem fair to include clearly not hydrophobic carbon atoms.
+                elif ('H' in atom_name_rep) or current_residue.atom_is_backbone(i+1) or ("C" not in atom_name_rep):
+                    continue
+                all_protein_C_atoms.append(list(aa_atom.xyz()))
+        elif (current_residue.is_DNA() or current_residue.name3().strip() in DNA_names3) and current_residue.name1() not in 'XZ':
+            # very fun--sometimes something has a 'DG' but isn't listed as DNA...see CRE for an example of a terminal DG
+            ## very fun part 2: the !Z part is important because there are some modified DNA bases in the natives, and you don't want to count any of them because MPNN won't have predicted them
+            dna_index.append(residue)
+
+    all_protein_C_atoms = np.array(all_protein_C_atoms)
+
+    hydrophobic_dict = dict.fromkeys(hydrophobic_distances,0)
+
+    for dna_residue in dna_index:
+        dna_resi_distances = []
+        dna_resi = pose.residue(dna_residue)
+        if pose.residue(dna_residue).name3().strip() in ['DA','DG']: continue
+        for i, dna_atom in enumerate(dna_resi.atoms()):
+            if 'H' in dna_resi.atom_name(i+1):
+                continue
+            if dna_resi.name3().strip() in ['DT','DC','C','U'] and dna_resi.atom_name(i+1).strip() in ['C4', 'C5', 'C6', 'C7']:
+                dna_resi_distances.append(np.sqrt(np.sum((np.array(dna_atom.xyz())-all_protein_C_atoms)**2,axis=1)))
+        shortest_hydrophobic_distances = np.min(np.array(dna_resi_distances),axis=0)
+        for k in hydrophobic_distances:
+            hydrophobic_dict[k] += np.sum(shortest_hydrophobic_distances < k)
+    print('Number of C within hydrophobic distances:', hydrophobic_dict)
+
+    for k in hydrophobic_distances:
+        df_scores[f'n_hydrophobic_contacts_{k}A'] = [hydrophobic_dict[k]]
+    df_scores['n_base_hbonds'] = [base_specific_hbond_by_atom_count]
+
+    return df_scores
+
+def count_hbonds_protein_dna(pose, energy_cutoff) :
     '''
     Takes in a pose and returns the amino acid positions of the residues making hydrogen bonds with DNA.
     '''
+    mc_bb_atoms = ["P", "O5'", "C5'", "C4'", "C3'", "O3'", "OP2",  "OP1",  "O5'",  "C5'",  "C4'",  "O4'",
+               "C3'",  "O3'",  "C2'",  "C1'", "H5''",  "H5'",  "H4'",  "H3'", "H2''",  "H2'",  "H1'"]
+    aa_bb_atoms = ['N', 'CA', 'C', 'O', 'CB', '1H', '2H', '3H', 'HA', 'OXT','H'] #I added this to avoid counting backbone - DNA hydrogen bonds
     DNA_base_names = ['ADE','GUA','THY','CYT', '5IU', 'BRU', 'RGU', 'RCY', 'RAD', 'RTH']
 
     pose_hb = pyrosetta.rosetta.core.scoring.hbonds.HBondSet(pose)
@@ -752,6 +586,7 @@ def count_hbonds_protein_dna(pose) :
     hbonds_don_res = []
     hbonds_acc_res = []
     involves_dna = []
+    hbonds_energy = []
 
     base_dict = {}
     base_count_dict = {}
@@ -773,30 +608,62 @@ def count_hbonds_protein_dna(pose) :
         acceptor_atm = hbond.acc_atm()
         donor_res = hbond.don_res()
         acceptor_res = hbond.acc_res()
+        hbond_energy = hbond.energy()
         hbonds_don_hatm.append(donor_hatm)
         hbonds_acc_atm.append(acceptor_atm)
         hbonds_don_res.append(donor_res)
         hbonds_acc_res.append(acceptor_res)
+        hbonds_energy.append(hbond_energy)
 
-    aa_pos = []
-
+    protein_dna = 0
+    protein_dna_specific = 0
+    aa_identities_base = []
+    aa_pos_base = []
+    aa_identities_phosphate = []
+    aa_pos_phosphate = []
+    bidentate_list = []
 
     for residue in range(len(hbonds_acc_res)) :
+        if hbonds_energy[residue] > float(energy_cutoff):
+            continue
+
         don_atom_type = pose.residue(hbonds_don_res[residue]).atom_name(hbonds_don_hatm[residue]).strip(" ")
         acc_atom_type = pose.residue(hbonds_acc_res[residue]).atom_name(hbonds_acc_atm[residue]).strip(" ")
 
-        if acc_atom_type in ['OP1','OP2']:
-            continue
-
         if pose.residue(hbonds_don_res[residue]).name().split(':')[0] in DNA_base_names :
             if not pose.residue(hbonds_acc_res[residue]).name().split(':')[0] in DNA_base_names :
-                if not int(hbonds_acc_res[residue]) in aa_pos:
-                    aa_pos.append(int(hbonds_acc_res[residue]))
+                protein_dna += 1
+                if not don_atom_type in mc_bb_atoms and not acc_atom_type in aa_bb_atoms:
+                    protein_dna_specific += 1
+                    aa_identities_base.append(pose.residue(hbonds_acc_res[residue]).name1())
+                    if not int(hbonds_acc_res[residue]) in aa_pos_base:
+                        aa_pos_base.append(int(hbonds_acc_res[residue]))
+                    else:
+                        bidentate_list.append(int(hbonds_acc_res[residue]))
+                    base_id = dna_base_list[dna_res_list.index(hbonds_don_res[residue])]
+                    base_count_dict[base_id] += 1
+                elif don_atom_type in mc_bb_atoms and not acc_atom_type in aa_bb_atoms:
+                    aa_identities_phosphate.append(pose.residue(hbonds_acc_res[residue]).name1())
+                    if not int(hbonds_acc_res[residue]) in aa_pos_phosphate:
+                        aa_pos_phosphate.append(int(hbonds_acc_res[residue]))
         else :
             if pose.residue(hbonds_acc_res[residue]).name().split(':')[0] in DNA_base_names :
-                if not int(hbonds_don_res[residue]) in aa_pos:
-                    aa_pos.append(int(hbonds_don_res[residue]))
-    return aa_pos
+                protein_dna += 1
+                if not acc_atom_type in mc_bb_atoms and not don_atom_type in aa_bb_atoms:
+                    protein_dna_specific += 1
+                    aa_identities_base.append(pose.residue(hbonds_don_res[residue]).name1())
+                    if not int(hbonds_don_res[residue]) in aa_pos_base:
+                        aa_pos_base.append(int(hbonds_don_res[residue]))
+                    else:
+                        bidentate_list.append(int(hbonds_don_res[residue]))
+                    base_id = dna_base_list[dna_res_list.index(hbonds_acc_res[residue])]
+                    base_count_dict[base_id] += 1
+                elif acc_atom_type in mc_bb_atoms and not don_atom_type in aa_bb_atoms:
+                    aa_identities_phosphate.append(pose.residue(hbonds_acc_res[residue]).name1())
+                    if not int(hbonds_don_res[residue]) in aa_pos_phosphate:
+                        aa_pos_phosphate.append(int(hbonds_don_res[residue]))
+                        
+    return  aa_pos_base, aa_pos_phosphate, list(set(bidentate_list))
 
 def prefilter_preemption(df_scores, prefilter_eq_file, prefilter_mle_cut_file):
     # ---------------------------------------------------------------------
@@ -850,15 +717,21 @@ def hbond_score(pose, tag, df_scores, args):
                      'SER_phosphate_hbonds':1,'THR_phosphate_hbonds':1,'HIS_phosphate_hbonds':1,
                     }
     bidentate_score_weights = {'ARG_g_bidentates':1,'ASN_a_bidentates':1,'GLN_a_bidentates':1}
-    hbond_energy_cut = float(args.hbond_energy_cut)
-    columns, result = count_hbond_types.count_hbonds_protein_dna(pose, tag, hbond_energy_cut)
+
+    columns, result = count_hbond_types.count_hbonds_protein_dna(pose, tag, args.hbond_energy_cut)
     df_new = pd.Series(result, index = columns)
     df_scores['base_score'] = 0
+    df_scores['unweighted_base_score'] = 0
     df_scores['phosphate_score'] = 0
+    df_scores['unweighted_phosphate_score'] = 0
     df_scores['bidentate_score'] = 0
     for j in base_hbond_score_weights:
+        df_scores[j] = df_new[j]
+        df_scores['unweighted_base_score'] += df_new[j]
         df_scores['base_score'] += df_new[j]*base_hbond_score_weights[j]
     for j in phosphate_hbond_score_weights:
+        df_scores[j] = df_new[j]
+        df_scores['unweighted_phosphate_score'] += df_new[j]
         df_scores['phosphate_score'] += df_new[j]*phosphate_hbond_score_weights[j]
     for j in bidentate_score_weights:
         df_scores['bidentate_score'] += df_new[j]*bidentate_score_weights[j]
@@ -877,12 +750,14 @@ def calc_bidentates(aa_dictionary, dna_1, dna_2):
 
     for aa in aa_dictionary.keys():
         if len(aa_dictionary[aa]) > 1:
+#             print(f'{aa} makes a bidentate bond!')
             num_bidentates += 1
             unique_bp_list = list(set(aa_dictionary[aa]))
             if len(unique_bp_list) > 1:
                 num_bridged_bidentates += 1
                 for count, bp in enumerate(unique_bp_list):
                     for other_bp in unique_bp_list[count+1:]:
+#                         print(f'{aa} is a bridged bidentate to {bp} and {other_bp}')
                         if (int(bp[3:]) in dna_1 and int(other_bp[3:]) in dna_2) or (int(bp[3:]) in dna_2 and int(other_bp[3:]) in dna_1):
                             num_cross_strand_bidentates += 1
     return num_bidentates, num_bridged_bidentates, num_cross_strand_bidentates
@@ -894,46 +769,56 @@ def calc_rboltz(pose, df):
     RotamerBoltzmann scores (includes every amino acid type); and median RotamerBoltzmann (includes every amino acid type)
     '''
     notable_aas = ['ARG','GLU','GLN','LYS']
-    hbond_residues = count_hbonds_protein_dna(pose)
+    base_hbond_residues, phosphate_hbond_residues, bidentates = count_hbonds_protein_dna(pose, args.hbond_energy_cut)
 
     cols = ['residue_num','residue_name','rboltz']
     design_df = pd.DataFrame(columns=cols)
 
-    for j in hbond_residues:
-        residue_info = [j, pose.residue(j).name()[:3]]
+    def get_rboltz_vals(test_resis,repack_neighbors=False):
+        for j in test_resis:
+            residue_info = [j, pose.residue(j).name()[:3]]
 
-        hbond_position_selector = pyrosetta.rosetta.core.select.residue_selector.ResidueIndexSelector()
-        hbond_position_selector.set_index(j)
+            hbond_position_selector = pyrosetta.rosetta.core.select.residue_selector.ResidueIndexSelector()
+            hbond_position_selector.set_index(j)
 
-        # Set up task operations for RotamerBoltzmann...with standard settings
-        tf = pyrosetta.rosetta.core.pack.task.TaskFactory()
-        tf.push_back(pyrosetta.rosetta.core.pack.task.operation.InitializeFromCommandline())
-        tf.push_back(pyrosetta.rosetta.core.pack.task.operation.IncludeCurrent())
-        tf.push_back(pyrosetta.rosetta.core.pack.task.operation.NoRepackDisulfides())
+            # Set up task operations for RotamerBoltzmann...with standard settings
+            tf = pyrosetta.rosetta.core.pack.task.TaskFactory()
+            tf.push_back(pyrosetta.rosetta.core.pack.task.operation.InitializeFromCommandline())
+            tf.push_back(pyrosetta.rosetta.core.pack.task.operation.IncludeCurrent())
+            tf.push_back(pyrosetta.rosetta.core.pack.task.operation.NoRepackDisulfides())
 
-        # Allow extra rotamers
-        extra_rots = pyrosetta.rosetta.core.pack.task.operation.ExtraRotamersGeneric()
-        extra_rots.ex1(1)
-        extra_rots.ex2(1)
-        tf.push_back(extra_rots)
+            # Allow extra rotamers
+            extra_rots = pyrosetta.rosetta.core.pack.task.operation.ExtraRotamersGeneric()
+            extra_rots.ex1(1)
+            extra_rots.ex2(1)
+            tf.push_back(extra_rots)
 
-        # Prevent repacking on everything but the hbond position
-        prevent_repacking_rlt = pyrosetta.rosetta.core.pack.task.operation.PreventRepackingRLT()
-        not_pack = pyrosetta.rosetta.core.select.residue_selector.NotResidueSelector(hbond_position_selector)
-        prevent_subset_repacking = pyrosetta.rosetta.core.pack.task.operation.OperateOnResidueSubset(prevent_repacking_rlt, not_pack)
-        tf.push_back(prevent_subset_repacking)
+            # Prevent repacking on everything but the hbond position and neighbors
+            prevent_repacking_rlt = pyrosetta.rosetta.core.pack.task.operation.PreventRepackingRLT()
+            if repack_neighbors == True:
+                neighbor_selector = pyrosetta.rosetta.core.select.residue_selector.NeighborhoodResidueSelector()
+                neighbor_selector.set_distance(12)
+                neighbor_selector.set_focus_selector(hbond_position_selector)
+                not_pack = pyrosetta.rosetta.core.select.residue_selector.NotResidueSelector(neighbor_selector)
+            else:
+                not_pack = pyrosetta.rosetta.core.select.residue_selector.NotResidueSelector(hbond_position_selector)
+            prevent_subset_repacking = pyrosetta.rosetta.core.pack.task.operation.OperateOnResidueSubset(prevent_repacking_rlt, not_pack)
+            tf.push_back(prevent_subset_repacking)
 
-        sfxn = pyrosetta.rosetta.core.scoring.get_score_function()
+            sfxn = pyrosetta.rosetta.core.scoring.get_score_function()
 
-        rboltz = pyrosetta.rosetta.protocols.calc_taskop_filters.RotamerBoltzmannWeight()
-        rboltz.scorefxn(sfxn)
-        rboltz.task_factory(tf)
-        rboltz.skip_ala_scan(1)
-        rboltz.no_modified_ddG(1)
-        rboltz_val = rboltz.compute(pose)
-        residue_info.append(rboltz_val)
-        design_df.loc[len(design_df)] = residue_info.copy()
-
+            rboltz = pyrosetta.rosetta.protocols.calc_taskop_filters.RotamerBoltzmannWeight()
+            rboltz.scorefxn(sfxn)
+            rboltz.task_factory(tf)
+            rboltz.skip_ala_scan(1)
+            rboltz.no_modified_ddG(1)
+            rboltz_val = rboltz.compute(pose)
+            residue_info.append(rboltz_val)
+            design_df.loc[len(design_df)] = residue_info.copy()
+        return design_df
+    
+    # get base specific rboltz_metrics
+    design_df = get_rboltz_vals(base_hbond_residues)
     RKQE_subset = design_df[design_df['residue_name'].isin(notable_aas)]
     if len(RKQE_subset) > 0:
         df['max_rboltz_RKQE'] = -1 * RKQE_subset['rboltz'].min()
@@ -946,22 +831,69 @@ def calc_rboltz(pose, df):
     else:
         df['avg_top_two_rboltz'] = 0
         df['median_rboltz'] = 0
+        
+    # get phosphate specific rboltz metrics
+    design_df = get_rboltz_vals(phosphate_hbond_residues)
+    RKQE_subset = design_df[design_df['residue_name'].isin(notable_aas)]
+    if len(RKQE_subset) > 0:
+        df['max_rboltz_RKQE_phosphate'] = -1 * RKQE_subset['rboltz'].min()
+    else:
+        df['max_rboltz_RKQE_phosphate'] = 0
+
+    if len(design_df) > 0:
+        df['avg_top_two_rboltz_phosphate'] = -1 * np.average(design_df['rboltz'].nsmallest(2))
+        df['median_rboltz_phosphate'] = -1 * np.median(design_df['rboltz'])
+    else:
+        df['avg_top_two_rboltz_phosphate'] = 0
+        df['median_rboltz_phosphate'] = 0
 
     return df
 
-def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_out ):
+def eval_model(pose, df_scores, tag, silent_in, silent_out, mpnn_score = None, is_prefilter = False, is_mpnn_prefilter = False):
+    
+    try: contact_molecular_surface = cms_filter.compute( pose )
+    except: contact_molecular_surface = 1
+    net_charge = net_charge_filter.compute( pose )
+    net_charge_over_sasa = net_charge_over_sasa_filter.compute( pose )
+
+    df_scores = pd.DataFrame()
+    
+    df_scores['contact_molecular_surface'] = [contact_molecular_surface]
+    df_scores['net_charge'] = [net_charge]
+    df_scores['net_charge_over_sasa'] = [net_charge_over_sasa]
+    df_scores['tag'] = [tag]
+    df_scores['silent_in'] = [silent]
+    df_scores['silent_out'] = [silent_out]
+    df_scores['sequence'] = [pose.sequence()]
+    df_scores['mpnn_score'] = [mpnn_score]
+    df_scores['is_prefilter'] = is_prefilter
+    
+    df_scores = hbond_score(pose, tag, df_scores, args)
+    df_scores = count_backbone_phosphate_contacts(pose, tag, df_scores, args)
+    
+    if not is_mpnn_prefilter:
+        df_scores['ddg'] = [ddg_filter.compute( pose )]
+        df_scores['ddg_over_cms'] = df_scores['ddg'] / df_scores['contact_molecular_surface']
+    
+    # Calculate RotamerBoltzmann scores
+    if not is_prefilter:
+        df_scores = calc_rboltz(pose, df_scores)
+        
+    return df_scores
+
+def dl_design( pose, tag, og_struct, sfd_out, dfs, silent, silent_out, pdb_folder):
 
     # this is to fix weird tags after motif motif_graft
     #tag = tag.replace('m','m_pdb')
 
     design_counter = args.start_num
 
+    # Tags can't have .pdb in their name otherwise silentextract will stop reading after that ending.
     if args.silent_tag_prefix != '':
-        prefix = f"{args.silent_tag_prefix}_{tag}_dldesign"
-    else: prefix = f"{tag}_dldesign"
+        prefix = f"{args.silent_tag_prefix}_{tag.replace('.pdb','')}_dldesign"
+    else: prefix = f"{tag.replace('.pdb','')}_dldesign"
 
-    pdbfile = f"tmp.pdb"
-
+     # prefilter designs 
     if args.require_motif_in_rec_helix != 0:
         turn_resis = []
         motif_resis = []
@@ -1009,6 +941,7 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
             return design_counter, dfs
         print('RIFRES is in recognition helix')
 
+    
     if args.bb_phos_cutoff != 0:
         df_scores = pd.DataFrame()
         df_scores['n_backbone_phosphate_contacts'] = [0]
@@ -1016,16 +949,32 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
         if df_scores['n_backbone_phosphate_contacts'].iloc[0] < args.bb_phos_cutoff:
             print('Did not exceed bb-phos cutoff. Continuing to next tag.')
             return design_counter, dfs
+        
+    if args.compactness_prefilter != 0:
+        min_ncontacts,max_loop_length = compactness_filter.filter(pose)
+        if min_ncontacts < 2 or max_loop_length > 5:
+            print('Did not pass compactness or loop length filter. Continuing to next tag.')
+            return design_counter, dfs
+        else:
+            print(f"Input model has a minimum of {min_ncontacts} contacts per ss element and maximum loop length of {max_loop_length}")
 
+
+    # selecting residues to freeze
+    ### get inputs for frozen residues
+    ### This whole section assumes you're designing exactly one protein to design and is in the first position of the chains,
+    ### but regardless of the actual file the chain is labeled by MPNN as chain A because it's the first chain 
     if freeze_hbond_resis == 1:
-        hbond_residues = count_hbonds_protein_dna(pose)
+        try: 
+            hbond_residues, phosphate_hbond_residues, bidentates = count_hbonds_protein_dna(pose, args.hbond_energy_cut)
+        except: # in some cases there are no hbonds and this causes an error. In this case, do not fix hbond residues.
+            hbond_residues = []
         print(f"Fixed resis: {hbond_residues}")
-        fixed_positions_dict={"tmp":{"A":hbond_residues}}
+        fixed_positions_dict={'temptag':{"A":hbond_residues}}
     elif args.freeze_resis != '':
         freeze_resis = args.freeze_resis.split(',')
         fixed_positions = [int(j) for j in freeze_resis]
         print(f'Fixed positions: {",".join(freeze_resis)}')
-        fixed_positions_dict = {"tmp":{"A":fixed_positions}}
+        fixed_positions_dict = {'temptag':{"A":fixed_positions}}
     elif args.freeze_hotspot_resis == 1:
         hotspot_resis = []
         info = pose.pdb_info()
@@ -1035,92 +984,134 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
                 hotspot_resis.append(res)
         hotspot_str = ",".join([str(j) for j in hotspot_resis])
         print(f'Fixed positions: {hotspot_str}')
-        fixed_positions_dict = {"tmp":{"A":hotspot_resis}}
-    else: fixed_positions_dict = {"tmp":{"A":[]}}
+        fixed_positions_dict = {'temptag':{"A":hotspot_resis}}
+    elif args.freeze_seed_resis == 1:
+        if args.init_seq != '':
+            with open(args.init_seq,'r') as init_seqs_f:
+                for line in init_seqs_f.readlines():
+                    if tag in line:
+                        init_seq = line.split(' ')[-1].rstrip()
+        else:
+            init_seq = pose.split_by_chain()[1].sequence()  # this is another place that it assumes protein is chain 1
+        print(init_seq)
+        hotspot_resis = [j+1 for j, resi in enumerate(init_seq) if resi != 'A']
+        hotspot_str = ",".join([str(j) for j in hotspot_resis])
+        print(f'Fixed positions: {hotspot_str}')
+        fixed_positions_dict = {'temptag':{"A":hotspot_resis}}
+    else: fixed_positions_dict = {'temptag':{"A":[]}}
+
+    print(fixed_positions_dict)
+
+    ### for fused_mpnn, the inputs are going to be the same thing you'd put in on the command line -- so it's "A16 A17 A24" etc.
+    fixed_positions_str = ''
+    for chain_w_fixed_residues in fixed_positions_dict['temptag'].keys():
+        for residue in fixed_positions_dict['temptag'][chain_w_fixed_residues]:
+            fixed_positions_str = f"{fixed_positions_str} {chain_w_fixed_residues}{residue}"
     pssm_dict=None
-
-    pose.dump_pdb( pdbfile )
-    chains = get_chains( pose )
-    seqs_scores = sequence_optimize( pdbfile, chains, mpnn_model, fixed_positions_dict, pssm_dict )
-    print(seqs_scores)
-
-    os.remove( pdbfile )
-
+    
     in_pose = pose.clone()
 
-    if args.relax_input == 1:
+    if args.relax_input == 1 or args.analysis_only == 1:
         print("Relaxing input sequence")
         relaxed_pose = in_pose.clone()
-        tag = f"{tag}_input_0"
-        t0 = time.time()
-        fast_relax.apply(pose)
-        ddg = ddg_filter.compute( pose )
-        try: contact_molecular_surface = cms_filter.compute( pose )
-        except: contact_molecular_surface = 1
-        vbuns = vbuns_filter.apply( pose )            
-        sbuns = sbuns_filter.apply( pose )
-        net_charge = net_charge_filter.compute( pose )
-        net_charge_over_sasa = net_charge_over_sasa_filter.compute( pose )
+        if args.relax_input ==1:
+            tag = f"{tag}_relaxed_input_0"
+            t0 = time.time()
+            fast_relax.apply(relaxed_pose)
 
         df_scores = pd.DataFrame()
-        df_scores['ddg'] = [ddg]
-        df_scores['contact_molecular_surface'] = [contact_molecular_surface]
-        df_scores['ddg_over_cms'] = df_scores['ddg'] / df_scores['contact_molecular_surface']
-        df_scores['vbuns5.0_heavy_ball_1.1D'] = [vbuns]
-        df_scores['sbuns5.0_heavy_ball_1.1D'] = [sbuns]
-        df_scores['net_charge'] = [net_charge]
-        df_scores['net_charge_over_sasa'] = [net_charge_over_sasa]
-        df_scores['tag'] = [tag]
-        df_scores['silent_in'] = [silent]
-        df_scores['silent_out'] = [silent_out]
-        df_scores['sequence'] = [pose.sequence()]
-        df_scores['mpnn_score'] = []
-        df_scores['is_prefilter'] = [False]
-
-
-        print(f"Relax ddg is {ddg}")
-        # Score hbonds to DNA
-        df_scores = hbond_score(pose, tag, df_scores, args)
-        df_scores = count_backbone_phosphate_contacts(pose, tag, df_scores, args)
-
-
-        # Calculate RotamerBoltzmann scores
-        df_scores = calc_rboltz(pose, df_scores)
-
+        df_scores = eval_model(relaxed_pose,df_scores,tag,silent,silent_out)
+        
+        print(f"ddg of input model: {df_scores['ddg'].iloc[0]}")
 
         # Add setting info to the score file
         for key in args.__dict__:
             df_scores[key] = args.__dict__[key]
         dfs.append(df_scores)
+        
+        add2silent( relaxed_pose, tag, sfd_out, silent_out )
+    
+    if args.analysis_only == 1: 
+        return design_counter, dfs
 
-    for idx, seq_score in enumerate( seqs_scores ):
+    
+    ### This is where we get the string for the pdb file
+    # pose.dump_pdb( pdbfile )
+    converter = PoseToStructFileRepConverter()
+    converter.init_from_pose(pose)
+    pdbstring = create_pdb_contents_from_sfr(converter.sfr())
+    
+
+    chains = get_chains( pose )
+    
+    if args.preempt_bb_on_charge != 0:
+        seqs_scores_pdbs = sequence_optimize( pdbstring, chains, fixed_positions_str, args.seq_per_struct, pssm_dict )
+        pass_cut = False
+        for idx, seq_score_pdb in enumerate( seqs_scores_pdbs ):
+            seq, mpnn_score, pdb = seq_score_pdb
+            net_charge = calculate_net_charge( seq )
+            if net_charge < args.preempt_bb_on_charge:
+                pass_cut = True
+        if pass_cut == False: 
+            print('Backbone did not pass net charge pre-emption. Continuing to next tag.')
+            return design_counter, dfs
+    
+    ### Get PDB string
+    seqs_scores_pdbs = sequence_optimize( pdbstring, chains, fixed_positions_str, args.seq_per_struct, pssm_dict )
+
+    
+    for idx, seq_score_pdb in enumerate( seqs_scores_pdbs ):
+        print(seq_score_pdb[0],seq_score_pdb[1])
         tag = f"{prefix}_{design_counter}"
-        seq, mpnn_score = seq_score
-        pose = thread_mpnn_seq( in_pose, seq )
+        seq, mpnn_score, pdb = seq_score_pdb
+        #pose = thread_mpnn_seq( in_pose, seq )
+        
+        if args.net_charge_cutoff != 0:
+            net_charge = calculate_net_charge( seq )
+            print('Net charge:', net_charge)
+            if net_charge > args.net_charge_cutoff: 
+                print('Design does not pass net charge cutoff')
+                continue
+            
+        pose = Pose()
+        pyrosetta.rosetta.core.import_pose.pose_from_pdbstring(pose, pdb)
+        
+        
+        if args.run_mpnn_sc_predictor == 1:
+            t0 = time.time()
+            
+            df_scores = eval_model(pose,pd.DataFrame(),tag,silent,silent_out, mpnn_score=mpnn_score, is_prefilter=True, is_mpnn_prefilter=True)
+            #print(f"MPNN-packed ddg is {df_scores['ddg'].iloc[0]}")
+            print(f"MPNN-packed hbond_score is {df_scores['base_score'].iloc[0]}")
+            print(f"MPNN-packed phosphate_score  is {df_scores['phosphate_score'].iloc[0]}")
 
+            prefilter_eq_file = args.prefilter_eq_file
+            prefilter_mle_cut_file = args.prefilter_mle_cut_file
+
+            # Add setting info to the score file
+            for key in args.__dict__:
+                df_scores[key] = args.__dict__[key]
+            dfs.append(df_scores)
+
+            if prefilter_eq_file is not None and prefilter_mle_cut_file is not None:
+                passed_prefilters, df_scores = prefilter_preemption(df_scores, prefilter_eq_file, prefilter_mle_cut_file)
+                if passed_prefilters == False:
+                    t1 = time.time()
+                    print(f'prefiltering took {t1-t0}')
+                    continue
+
+            t1 = time.time()
+            print(f'prefiltering took {t1-t0}')
+            
         if args.run_predictor == 1:
             t0 = time.time()
-            packed_pose = in_pose.clone()
+            packed_pose = pose.clone()
             pack_no_design.apply( packed_pose )
             softish_min.apply( packed_pose )
             hard_min.apply( packed_pose )
-            ddg = ddg_filter.compute( packed_pose )
-            try:
-                contact_molecular_surface = cms_filter.compute( packed_pose )
-            except: contact_molecular_surface = 1
-            df_scores = pd.DataFrame()
-
-            df_scores['ddg'] = [ddg]
-            df_scores['contact_molecular_surface'] = [contact_molecular_surface]
-            df_scores['ddg_over_cms'] = df_scores['ddg'] / df_scores['contact_molecular_surface']
-            df_scores = count_backbone_phosphate_contacts(pose, tag, df_scores, args)
-            df_scores['tag'] = [tag]
-            df_scores['silent_in'] = [silent]
-            df_scores['silent_out'] = [silent_out]
-            df_scores['sequence'] = seq
-            df_scores['mpnn_score'] = mpnn_score
-            df_scores['is_prefilter'] = [True]
-            print(f"Prefilter ddg is {ddg}")
+            
+            df_scores = eval_model(packed_pose,pd.DataFrame(),tag,silent,silent_out, mpnn_score=mpnn_score, is_prefilter=True)
+            print(f"Prefilter ddg is {df_scores['ddg'].iloc[0]}")
 
             prefilter_eq_file = args.prefilter_eq_file
             prefilter_mle_cut_file = args.prefilter_mle_cut_file
@@ -1144,46 +1135,10 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
         if args.run_relax == 1:
             t0 = time.time()
             fast_relax.apply(pose)
-            ddg = ddg_filter.compute( pose )
-            try: contact_molecular_surface = cms_filter.compute( pose )
-            except: contact_molecular_surface = 1
-            vbuns = vbuns_filter.apply( pose )
-            sbuns = sbuns_filter.apply( pose )
-            net_charge = net_charge_filter.compute( pose )
-            net_charge_over_sasa = net_charge_over_sasa_filter.compute( pose )
+            df_scores = eval_model(pose,pd.DataFrame(),tag,silent,silent_out,mpnn_score=mpnn_score)
 
-            df_scores = pd.DataFrame()
-            df_scores['ddg'] = [ddg]
-            df_scores['contact_molecular_surface'] = [contact_molecular_surface]
-            df_scores['ddg_over_cms'] = df_scores['ddg'] / df_scores['contact_molecular_surface']
-            df_scores['vbuns5.0_heavy_ball_1.1D'] = [vbuns]
-            df_scores['sbuns5.0_heavy_ball_1.1D'] = [sbuns]
-            df_scores['net_charge'] = [net_charge]
-            df_scores['net_charge_over_sasa'] = [net_charge_over_sasa]
-            df_scores['tag'] = [tag]
-            df_scores['silent_in'] = [silent]
-            df_scores['silent_out'] = [silent_out]
-            df_scores['sequence'] = seq
-            df_scores['mpnn_score'] = [mpnn_score]
-            df_scores['is_prefilter'] = [False]
-
-
-            print(f"Relax ddg is {ddg}")
-            # Score hbonds to DNA
-            df_scores = hbond_score(pose, tag, df_scores, args)
-            df_scores = count_backbone_phosphate_contacts(pose, tag, df_scores, args)
-
-
-            # Calculate RotamerBoltzmann scores
-            df_scores = calc_rboltz(pose, df_scores)
-
-            if args.ddg_cutoff is not None:
-                if ddg > args.ddg_cutoff:
-                    df_scores['passed_ddg_cutoff'] = False
-                    design_counter += 1
-                    continue
-                else:
-                    df_scores['passed_ddg_cutoff'] = True
+            print(f"Relax ddg is {df_scores['ddg'].iloc[0]}")
+        
 
             # Add setting info to the score file
             for key in args.__dict__:
@@ -1194,7 +1149,7 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
             t1 = time.time()
             print(f'relax took {t1-t0}\n')
 
-        if args.run_relax == 0 and args.run_predictor == 0:
+        if args.run_relax == 0 and args.run_predictor == 0 and args.run_mpnn_sc_predictor == 0:
             df_scores = pd.DataFrame()
 
             df_scores['tag'] = [tag]
@@ -1204,19 +1159,21 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
             df_scores['mpnn_score'] = [mpnn_score]
             df_scores = count_backbone_phosphate_contacts(pose, tag, df_scores, args)
 
-
             # Add setting info to the score file
             for key in args.__dict__:
                 df_scores[key] = args.__dict__[key]
             dfs.append(df_scores)
+        
 
-        add2silent( pose, tag, sfd_out )
+        # pose.dump_pdb(pdb_folder + '_mpnnredesign' + '/' + tag + '.pdb')
+        add2silent( pose, tag, sfd_out, silent_out )
         design_counter += 1
 
     if args.fast_design == 1:
         t0 = time.time()
         tmpdir = tempfile.TemporaryDirectory()
         tmp_dirname = tmpdir.name
+        
 
         # Generate a fasta file
         with open (f'{tmp_dirname}/{prefix}.fasta', 'w') as f:
@@ -1232,7 +1189,7 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
         print("Making PSSM")
         aln2pssm(aln_arr, pssmFile, tmp_dirname)
 
-        task_relax, add_ca_csts, FSP, FastDesign, rm_csts = xml_loader.fast_design_interface(protocols, f'{prog_dir}/flags_and_weights/RM8B_torsional.wts', pssmFile, fixed_positions_dict)
+        task_relax, add_ca_csts, FSP, FastDesign, rm_csts = xml_loader.fast_design_interface(protocols, f'{prog_dir}/flags_and_weights/RM8B_torsional.wts', pssmFile, fixed_positions_dict, f'{prog_dir}/flags_and_weights/no_ref.rosettacon2018.beta_nov16_constrained.txt')
 
         tag = f"{prefix}_FD"
         seq, mpnn_score = seqs_scores[0]
@@ -1244,46 +1201,11 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
         rm_csts.apply(pose)
 
         fast_relax.apply(pose)
-        ddg = ddg_filter.compute( pose )
-        try: contact_molecular_surface = cms_filter.compute( pose )
-        except: contact_molecular_surface = 1
-        vbuns = vbuns_filter.apply( pose )
-        sbuns = sbuns_filter.apply( pose )
-        net_charge = net_charge_filter.compute( pose )
-        net_charge_over_sasa = net_charge_over_sasa_filter.compute( pose )
+        df_scores = eval_model(relaxed_pose,df_scores,tag,silent,silent_out)
+        print(f"FD ddg is {df_scores['ddg'].iloc[0]}")
+        
 
-        df_scores = pd.DataFrame()
-        df_scores['ddg'] = [ddg]
-        df_scores['contact_molecular_surface'] = [contact_molecular_surface]
-        df_scores['ddg_over_cms'] = df_scores['ddg'] / df_scores['contact_molecular_surface']
-        df_scores['vbuns5.0_heavy_ball_1.1D'] = [vbuns]
-        df_scores['sbuns5.0_heavy_ball_1.1D'] = [sbuns]
-        df_scores['net_charge'] = [net_charge]
-        df_scores['net_charge_over_sasa'] = [net_charge_over_sasa]
-        df_scores['tag'] = [tag]
-        df_scores['silent_in'] = [silent]
-        df_scores['silent_out'] = [silent_out]
-        df_scores['sequence'] = seq
-        df_scores['mpnn_score'] = [0]
-        df_scores['is_prefilter'] = [False]
-
-
-        print(f"FD ddg is {ddg}")
-        # Score hbonds to DNA
-        df_scores = hbond_score(pose, tag, df_scores, args)
-        df_scores = count_backbone_phosphate_contacts(pose, tag, df_scores, args)
-
-
-        # Calculate RotamerBoltzmann scores
-        df_scores = calc_rboltz(pose, df_scores)
-
-        if args.ddg_cutoff is not None:
-            if ddg > args.ddg_cutoff:
-                df_scores['passed_ddg_cutoff'] = False
-            else:
-                df_scores['passed_ddg_cutoff'] = True
-
-        add2silent( pose, tag, sfd_out )
+        add2silent( pose, tag, sfd_out, silent_out )
         design_counter += 1
         # Add setting info to the score file
         for key in args.__dict__:
@@ -1296,7 +1218,7 @@ def dl_design( pose, tag, og_struct, mpnn_model, sfd_out, dfs, silent, silent_ou
 
     return design_counter, dfs
 
-def main( pdb, silent_structure, mpnn_model, sfd_in, sfd_out, dfs, silent, silent_out ):
+def main( pdb, silent_structure, sfd_in, sfd_out, dfs, silent, silent_out ):
 
     t0 = time.time()
     print( "Attempting pose: %s"%pdb )
@@ -1307,8 +1229,10 @@ def main( pdb, silent_structure, mpnn_model, sfd_in, sfd_out, dfs, silent, silen
         sfd_in.get_structure( pdb ).fill_pose( pose )
     elif args.pdb_folder != '':
         pose = pose_from_pdb(silent_structure)
+    elif args.pdb != '':
+        pose = pose_from_pdb(silent_structure)
 
-    good_designs, dfs = dl_design( pose, pdb, silent_structure, mpnn_model, sfd_out, dfs, silent, silent_out )
+    good_designs, dfs = dl_design( pose, pdb, silent_structure, sfd_out, dfs, silent, silent_out, args.pdb_folder )
 
     seconds = int(time.time() - t0)
 
@@ -1344,23 +1268,27 @@ if args.silent != '':
     silent_index = silent_tools.get_silent_index(silent)
     sfd_in = rosetta.core.io.silent.SilentFileData(rosetta.core.io.silent.SilentFileOptions())
     sfd_in.read_file(silent)
-    tags = sfd_in.tags()
+    tags = list(sfd_in.tags())
 elif args.pdb_folder != '':
     tags = glob.glob(args.pdb_folder+'/*.pdb')
     silent = ''
+elif args.pdb != '':
+    tags = [args.pdb]
+
+# if not os.path.exists(args.pdb_folder + '_mpnnredesign'):
+#     os.makedirs(args.pdb_folder + '_mpnnredesign', exist_ok=True)
 
 if args.silent != '':
     if not os.path.isfile(silent_out):
         with open(silent_out, 'w') as f: f.write(silent_tools.silent_header(silent_index))
 
-sfd_out = core.io.silent.SilentFileData("out.silent", False, False, "binary", core.io.silent.SilentFileOptions())
-
+sfd_out = core.io.silent.SilentFileData(f"out_{args.task_id}.silent", False, False, "binary", core.io.silent.SilentFileOptions())
 
 checkpoint_filename = "check.point"
 debug = True
 
 finished_structs = determine_finished_structs( checkpoint_filename )
-mpnn_model = init_seq_optimize_model()
+#mpnn_model, sc_model = init_seq_optimize_model()
 
 
 if args.silent_tag != '' and args.silent_tag in tags:
@@ -1379,21 +1307,33 @@ if args.silent_tag_file != '':
                 new_tags.append(tag)
             else:
                 print('Tag does not exist in silent file.')
-    tags = new_tags
+    tags = list(new_tags)
     print(f'Designing {len(tags)} specified tags from {args.silent}')
 
 if args.n_per_silent != 0:
     tags = random.choices(tags, k=args.n_per_silent)
     print(f'Designing {len(tags)} tags from {args.silent}')
 
-for pdb in tags:
+job_index = args.task_id
+chunk_size = len(tags) // args.n_chunks
+
+start_index = (job_index - 1) * chunk_size
+end_index = start_index + chunk_size
+
+
+if job_index == args.n_chunks:
+    chunk = tags[start_index:]
+else:
+    chunk = tags[start_index:end_index]
+
+for pdb in chunk:
     if args.pdb_folder != '':
         pdb_path = pdb
         print(f'Attempting pdb: {pdb_path}:')
         pdb = pdb.split('/')[-1].replace('.pdb','')
     total_time_0 = time.time()
 
-    if pdb in finished_structs: continue
+    if not args.ignore_checkpointing and pdb in finished_structs: continue
 
     dfs = []
 
@@ -1403,7 +1343,10 @@ for pdb in tags:
         elif args.pdb_folder != '':
             silent_structure = pdb_path
             sfd_in = ''
-        dfs = main( pdb, silent_structure, mpnn_model, sfd_in, sfd_out, dfs, silent, silent_out )
+        elif args.pdb != '':
+            silent_structure = pdb
+            sfd_in = ''
+        dfs = main( pdb, silent_structure, sfd_in, sfd_out, dfs, silent, silent_out )
 
     else: # When not in debug mode the script will continue to run even when some poses fail
         t0 = time.time()
@@ -1414,7 +1357,10 @@ for pdb in tags:
             elif args.pdb_folder != '':
                 silent_structure = pdb_path
                 sfd_in = ''
-            dfs = main( pdb, silent_structure, mpnn_model, sfd_in, sfd_out, dfs, silent, silent_out)
+            elif args.pdb != '':
+                silent_structure = pdb
+                sfd_in = ''
+            dfs = main( pdb, silent_structure, sfd_in, sfd_out, dfs, silent, silent_out)
 
         except KeyboardInterrupt: sys.exit( "Script killed by Control+C, exiting" )
 
@@ -1429,7 +1375,7 @@ for pdb in tags:
     try: scores = pd.concat(dfs, axis=0, ignore_index=True)
     except: continue
 
-    out_csv = 'out.csv'
+    out_csv = args.out_path
 
     if os.path.isfile(out_csv):
         csv_done = pd.read_csv(out_csv,index_col=0)

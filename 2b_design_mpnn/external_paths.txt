@@ -1,6 +1,7 @@
 pyrosetta_path,/net/software/pyrosetta3.8/versions/release-310/setup/pyrosetta
-silent_tools_path,/home/nrbennet/software/silent_tools/
+silent_tools_path,/projects/protein-DNA-binders/scripts/silent_tools/
 psi_blast_exe,/home/norn/software/PSI-BLASTexB/binaries/ncbi-blast-2.5.0+psiblastexb.1.0_linux64/bin/psiblast
 psi_pred_exe,/software/psipred4/runpsipred_single
-mpnn_path,/projects/protein-DNA-binders/scripts/proteinmpnn/ligandMPNN
-mpnn_model_checkpoint,/home/robpec/mpnn_dataset/training_the_model/justas_git/proteinmpnn/ligand_proteinmpnn/model_weights/lnet_plus10/epoch2000_step219824.pt
+ligand_mpnn_path,/home/cjg263/software/LigandMPNN/
+mpnn_model_checkpoint,/home/cjg263/software/LigandMPNN/model_params/ligandmpnn_v_32_010_25.pt
+sc_checkpoint_path,/home/cjg263/software/LigandMPNN/model_params/ligandmpnn_sc_v_32_002_16.pt

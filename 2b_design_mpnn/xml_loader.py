@@ -1,16 +1,16 @@
 import pyrosetta
 
-def fast_relax(protocols,weights_file,psipred_exe):
-    xml_script = """
+def fast_relax(protocols,weights_file,psipred_exe,relax_script):
+    xml_script = f"""
     <ROSETTASCRIPTS>
         # This is the relax script that Cameron adapted from the af2 superposition relax (originally written by Nate)
                 <SCOREFXNS>
-                        <ScoreFunction name="sfxn" weights="/home/cjg263/de_novo_dna/weights_files/beta16_opt47D.460_torsional.wts" />
-                        <ScoreFunction name="sfxn_design" weights="/home/cjg263/de_novo_dna/weights_files/beta16_opt47D.460_torsional.wts" >
+                        <ScoreFunction name="sfxn" weights="{weights_file}" />
+                        <ScoreFunction name="sfxn_design" weights="{weights_file}" >
                                 <Reweight scoretype="arg_cation_pi" weight="3" />
                         </ScoreFunction>
 
-                        <ScoreFunction name="sfxn_design_fast" weights="/home/cjg263/de_novo_dna/weights_files/beta16_opt47D.460_torsional.wts">
+                        <ScoreFunction name="sfxn_design_fast" weights="{weights_file}">
                  <Reweight scoretype="arg_cation_pi" weight="3"/>
 
                  # lk_ball is slooooooooooow
@@ -29,7 +29,7 @@ def fast_relax(protocols,weights_file,psipred_exe):
                                          </ScoreFunction>
 
 
-                        <ScoreFunction name="sfxn_softish" weights="/home/cjg263/de_novo_dna/weights_files/beta16_opt47D.460_torsional.wts" >
+                        <ScoreFunction name="sfxn_softish" weights="{weights_file}" >
                 <Reweight scoretype="arg_cation_pi" weight="3"/>
                 <Reweight scoretype="fa_rep" weight="0.15" />
                 <Reweight scoretype="pro_close" weight="0"/>
@@ -224,7 +224,7 @@ def fast_relax(protocols,weights_file,psipred_exe):
                                                                         bondlength="false"
                                                                         min_type="dfpmin_armijo_nonmonotone"
                                                                         task_operations="init,current,restrict_to_chA,ex1_ex2"
-                                                                        relaxscript="/home/nrbennet/protocols/relax_scripts/no_ref.rosettacon2018.beta_nov16_constrained.txt" >
+                                                                        relaxscript="{relax_script}" >
       </FastRelax>
 
     </MOVERS>
@@ -254,7 +254,7 @@ def fast_relax(protocols,weights_file,psipred_exe):
     </PROTOCOLS>
 </ROSETTASCRIPTS>
 """
-    xml_fr = xml_script.format(weights_file=weights_file,psipred_exe=psipred_exe)
+    xml_fr = xml_script.format(weights_file=weights_file,relax_script=relax_script,psipred_exe=psipred_exe)
     objs = protocols.rosetta_scripts.XmlObjects.create_from_string(xml_script)
     pack_no_design = objs.get_mover('pack_no_design')
     softish_min = objs.get_mover('softish_min')
@@ -287,8 +287,8 @@ def fast_relax(protocols,weights_file,psipred_exe):
     
     return pack_no_design, softish_min, hard_min, fast_relax, ddg_filter, cms_filter, vbuns_filter, sbuns_filter, net_charge_filter, net_charge_over_sasa_filter
 
-def fast_design_interface(protocols, weights_file, pssmFile, fixed_positions_dict):
-    xml_script = """
+def fast_design_interface(protocols, weights_file, pssmFile, fixed_positions_dict, relax_script):
+    xml_script = f"""
     <ROSETTASCRIPTS>
                 <SCOREFXNS>
                         <ScoreFunction name="sfxn" weights="{weights_file}" />
@@ -413,7 +413,7 @@ def fast_design_interface(protocols, weights_file, pssmFile, fixed_positions_dic
                        bondangle="false"
                        bondlength="false"
                        min_type="dfpmin_armijo_nonmonotone"
-                       relaxscript="/home/bcov/sc/scaffold_comparison/relax_scripts/no_ref.rosettacon2018.beta_nov16.txt"/>
+                       relaxscript="{relax_script}"/>
 
             <ClearConstraintsMover name="rm_csts" />
 
@@ -434,7 +434,7 @@ def fast_design_interface(protocols, weights_file, pssmFile, fixed_positions_dic
     string_ints = [str(int) for int in fixed_positions_dict["tmp"]["A"]]
     fixed_positions = ','.join(string_ints)
     print(fixed_positions)
-    xml_fd = xml_script.format(weights_file=weights_file, pssm_f=pssmFile, fixed_positions=fixed_positions)
+    xml_fd = xml_script.format(weights_file=weights_file,relax_script=relax_script, pssm_f=pssmFile, fixed_positions=fixed_positions)
 
     task_relax = protocols.rosetta_scripts.XmlObjects.create_from_string(xml_script)
     add_ca_csts = task_relax.get_mover("add_ca_csts")
