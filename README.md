@@ -14,8 +14,6 @@ We recommend the following end-to-end pipeline, which are detailed in the compan
 6. LigandMPNN Stage 3 (Ligandmpnn-Rosetta FastRelax recycling) (optional)
 7. AlphaFold2 Filtering
 
-The directory `2b_design_mpnn` contains information for running the MPNN design script and creation of a Singularity apptainer with necessary dependencies. All of the steps above which use LigandMPNN can be substituted for Rosetta-based design using the scripts in 2a_rosetta_design. However, we strongly recommend using LigandMPNN design. 
-
 ## Additional information for the LigandMPNN wrapper script
 
 Running MPNN requires installation of several programs, including LigandMPNN, PyRosetta, PSI_pred, and PSI_blast. The paths to these programs must be encoded in the 'external_paths.txt' folder. 
