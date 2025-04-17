@@ -6,9 +6,6 @@ Follow instructions in 1_rifgen_rifdock. The pipeline will require installation 
 LigandMPNN and Rosetta steps can easily be demoed using a protein-DNA complex PDB, such as those in the corresponding data. 
 Runtime for a single PDB on a standard computer ranges from 10s (LigandMPNN, no Rosetta relax) to 2 min (Rosetta design or LigandMPNN + Rosetta Relax)
 
-# 2a: steps for interface design with rosetta (not recommended)
-# 2b: steps for interface design with LigandMPNN (recommended)
-
 We recommend the following end-to-end pipeline, which are detailed in the companion notebooks 1_rifgen_rifdock and 2_dna_interface_design.ipynb. 
 1. RIFgen/RIFdock
 2. LigandMPNN Prefilter Calibration
