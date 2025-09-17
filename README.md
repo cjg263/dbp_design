@@ -1,6 +1,6 @@
 ## DBP design Pipeline
 
-For RIFdock, follow instructions in 1_rifgen_rifdock. The pipeline will require installation of Rifdock: https://github.com/rifdock/rifdock. You will require a DNA structure with your target sequence, which can be generated with x3dna (https://x3dna.org) or other means. All PDBs of HTH scaffolds are provided at https://files.ipd.uw.edu/pub/2023_dna_binders/dna_binder_data.zip. 
+For RIFdock, follow instructions in 1_rifgen_rifdock. The pipeline will require installation of Rifdock: https://github.com/rifdock/rifdock. You will require a DNA structure with your target sequence, which can be generated with x3dna (https://x3dna.org) or other means. All PDBs of HTH scaffolds are provided at https://files.ipd.uw.edu/pub/2023_dna_binders/pdbs.zip. 
 
 LigandMPNN and Rosetta steps can easily be demoed using a protein-DNA complex PDB, such as those in the corresponding data. 
 Runtime for a single PDB on a standard computer ranges from 10s (LigandMPNN, no Rosetta relax) to 2 min (Rosetta design or LigandMPNN + Rosetta Relax)
