@@ -1,7 +1,7 @@
 #from ajasja_utils import *
 
 import sys,os,json
-sys.path.append('/projects/protein-DNA-binders/scripts/')
+sys.path.append('/rhf/allocations/cg160/lab_scripts/')
 import tempfile
 import numpy as np
 import pandas as pd
@@ -215,7 +215,7 @@ def make_binder_design_xml(weights):
 									 bondlength="false"
 									 min_type="dfpmin_armijo_nonmonotone"
 									 task_operations="current,restrict_to_binder_interface,ex1_ex2"
-									 relaxscript="/projects/protein-DNA-binders/scripts/relax_scripts/no_ref.rosettacon2018.beta_nov16_constrained.txt" >
+									 relaxscript="/rhf/allocations/cg160/dbp_design/flags_and_weights/no_ref.rosettacon2018.beta_nov16_constrained.txt" >
         </FastRelax>
 
     </MOVERS>
@@ -719,10 +719,10 @@ def main():
     if opts.flags_file != '':
         flags = opts.flags_file
     else:
-        flags = '/home/cjg263/de_novo_dna/flags/flags_47D.460'
+        flags = '/rhf/allocations/cg160/software/dbp_design/flags_and_weights/RM8B_flags'
 
     init(f'-ignore_zero_occupancy {silent_in_init} {silent_out_init} -beta_nov16 -output_virtual 1 -precompute_ig 1  \
-           -run:preserve_header true -holes:dalphaball /projects/protein-DNA-binders/scripts/DAlpahBall/DAlphaBall.gcc @{flags}')
+           -run:preserve_header true -holes:dalphaball /rhf/allocations/cg160/software/dbp_design/DAlpahBall/DAlphaBall.gcc @{flags}')
 
 
 
