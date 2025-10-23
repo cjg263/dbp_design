@@ -176,10 +176,10 @@ def make_binder_design_xml(weights):
 				<ContactMolecularSurface name="cms_rec_helix" distance_weight="0.5" target_selector="chainB" binder_selector="rec_helix_or_motif_res" confidence="0" />
 
 
-				<SSPrediction name="pre_sspred_overall" cmd="/software/psipred4/runpsipred_single" use_probability="0" use_svm="0" threshold="0.85" confidence="0" />
+				<SSPrediction name="pre_sspred_overall" cmd="/rhf/allocations/cg160/software/scipred/runpsipred_single" use_probability="0" use_svm="0" threshold="0.85" confidence="0" />
 				<MoveBeforeFilter name="sspred_overall" mover="chain1only" filter="pre_sspred_overall" confidence="0" />
 
-				<SSPrediction name="pre_mismatch_probability" confidence="0" cmd="/software/psipred4/runpsipred_single" use_probability="1" mismatch_probability="1" use_svm="0" />
+				<SSPrediction name="pre_mismatch_probability" confidence="0" cmd="/rhf/allocations/cg160/software/scipred/runpsipred_single" use_probability="1" mismatch_probability="1" use_svm="0" />
 				<MoveBeforeFilter name="mismatch_probability" mover="chain1only" filter="pre_mismatch_probability" confidence="0" />
 
 				ScorePoseSegmentFromResidueSelectorFilter name="was_done" in_context="1" residue_selector="DONE_res" scorefxn="sfxn" confidence="0" />
@@ -215,7 +215,7 @@ def make_binder_design_xml(weights):
 									 bondlength="false"
 									 min_type="dfpmin_armijo_nonmonotone"
 									 task_operations="current,restrict_to_binder_interface,ex1_ex2"
-									 relaxscript="/rhf/allocations/cg160/dbp_design/flags_and_weights/no_ref.rosettacon2018.beta_nov16_constrained.txt" >
+									 relaxscript="/rhf/allocations/cg160/software/dbp_design/flags_and_weights/no_ref.rosettacon2018.beta_nov16_constrained.txt" >
         </FastRelax>
 
     </MOVERS>
@@ -722,7 +722,7 @@ def main():
         flags = '/rhf/allocations/cg160/software/dbp_design/flags_and_weights/RM8B_flags'
 
     init(f'-ignore_zero_occupancy {silent_in_init} {silent_out_init} -beta_nov16 -output_virtual 1 -precompute_ig 1  \
-           -run:preserve_header true -holes:dalphaball /rhf/allocations/cg160/software/dbp_design/DAlpahBall/DAlphaBall.gcc @{flags}')
+           -run:preserve_header true -holes:dalphaball /rhf/allocations/cg160/software/dbp_design/DAlphaBall/DAlphaBall.gcc @{flags}')
 
 
 
